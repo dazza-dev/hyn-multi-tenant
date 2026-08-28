@@ -1,46 +1,54 @@
-[![Packagist](https://img.shields.io/packagist/v/hyn/multi-tenant.svg)](https://packagist.org/packages/hyn/multi-tenant)
-[![build status](https://circleci.com/gh/tenancy/multi-tenant.svg?style=svg)](https://circleci.com/gh/tenancy/multi-tenant)
-[![codecov](https://codecov.io/gh/tenancy/multi-tenant/branch/5.x/graph/badge.svg)](https://codecov.io/gh/tenancy/multi-tenant/branch/5.x)
-[![Packagist](https://img.shields.io/packagist/dt/hyn/multi-tenant.svg)](https://packagist.org/packages/hyn/multi-tenant)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ac3e21d7a5f64e3f87f64c4913c1ca09?branch=4.x)](https://www.codacy.com/app/Luceos/multi-tenant)
-[![Join our Discord server](https://discordapp.com/api/guilds/146267795754057729/embed.png)](https://tenancy.dev/chat)
-[![Mentioned in Awesome Laravel](https://awesome.re/mentioned-badge.svg)](https://github.com/chiraggude/awesome-laravel)
+# hyn/multi-tenant — maintained continuation
 
-The unobtrusive Laravel package that makes your app multi tenant. Serving
-multiple websites, each with one or more hostnames from the same codebase. But
-with clear separation of assets, database and the ability to override logic per
-tenant.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](license.md)
+[![PHP](https://img.shields.io/badge/php-8.2%2B-777bb4.svg)](https://php.net)
 
-Suitable for marketing companies that like to re-use functionality
-for different clients or start-ups building the next software as a
- service.
+Run multiple websites from a single Laravel installation, each with one or more
+hostnames, keeping their data, assets and behaviour separated.
 
 ---
 
-Offers:
+## Which version do you need?
 
-- Integration with the awesome Laravel framework.
+| Your Laravel version | What to use |
+| --- | --- |
+| **11 and above** | This package |
+| **10 and below** | [hyn/multi-tenant](https://github.com/tenancy/multi-tenant) |
+
+> **Laravel 11 support is in progress and not released yet.** The current code
+> targets Laravel 9 and 10, like the package it continues.
+
+## About this repository
+
+A maintained fork of [hyn/multi-tenant](https://github.com/tenancy/multi-tenant)
+by **[Daniël Klabbers](https://luceos.com)**. The design and practically all of
+the code are his and the original contributors'.
+
+The original has received no commits since August 2023 and does not support
+Laravel 11. Rather than migrate away, we picked up its maintenance. This is the
+same code, the same `Hyn\Tenancy\` namespace and the same API.
+
+If the original project becomes active again we will gladly contribute these
+changes back.
+
+## Features
+
 - Event driven, extensible architecture.
-- Close - optional - integration into the web server.
-- The ability to add tenant specific configs, code, routes etc.
+- Optional integration with nginx and apache.
+- Tenant specific configuration, routes, views, translations and assets.
 
-Database separation methods:
+Tenant separation modes:
 
-- One system database and separated tenant databases (default).
-- Table prefixed in the system database.
-- Or .. manually, the way you want, by listening to an event.
+- A separate database per tenant, with its own user and credentials (default).
+- A table prefix within the system database.
+- Separate PostgreSQL schemas.
+- Or your own, by listening to an event.
 
-[Complete documentation](https://tenancy.dev) covers more than just the
- installation and configuration.
+## Requirements
 
-## Requirements, recommended environment
-
-- Laravel 9.0+.
+- Laravel 9 or 10 (Laravel 11 in progress)
 - PHP 8.0+
-- Apache or Nginx.
-- MySQL, MariaDB, or PostgreSQL.
-
-Please read the full [requirements in the documentation](https://tenancy.dev/docs/hyn/5.4/requirements).
+- MySQL, MariaDB or PostgreSQL
 
 ## Installation
 
@@ -48,123 +56,68 @@ Please read the full [requirements in the documentation](https://tenancy.dev/doc
 composer require hyn/multi-tenant
 ```
 
-### Automatic service registration
-
-Using [auto discovery](https://medium.com/@taylorotwell/package-auto-discovery-in-laravel-5-5-ea9e3ab20518), the
-tenancy package will be auto detected by Laravel automatically.
-
-#### Manual service registration
-
-In case you want to disable webserver integration or prefer manual integration,
-set the `dont-discover` in your application composer.json, like so:
-
-```json
-{
-    "extra": {
-        "laravel": {
-            "dont-discover": [
-                "hyn/multi-tenant"
-            ]
-        }
-    }
-}
-```
-
-If you disable auto discovery you are able to configure the providers by yourself.
-
-Register the service provider in your `config/app.php`:
+The service providers are registered through package auto discovery. To opt out
+and register them yourself, add `hyn/multi-tenant` to `extra.laravel.dont-discover`
+and register:
 
 ```php
-    'providers' => [
-        // [..]
-        // Hyn multi tenancy.
-        Hyn\Tenancy\Providers\TenancyProvider::class,
-        // Hyn multi tenancy webserver integration.
-        Hyn\Tenancy\Providers\WebserverProvider::class,
-    ],
+Hyn\Tenancy\Providers\TenancyProvider::class,
+Hyn\Tenancy\Providers\WebserverProvider::class,
 ```
 
-### Deploy configuration
-
-First publish the configuration and migration files so you can modify it to your needs:
+### Configuration
 
 ```bash
 php artisan vendor:publish --tag tenancy
-```
-
-Open the `config/tenancy.php` and `config/webserver.php` file and modify to your needs.
-
-> Make sure your system connection has been configured in `database.php`. In case you didn't override the system connection name the `default` connection is used.
-
-Now run:
-
-```bash
 php artisan migrate --database=system
 ```
 
-This will run the required system database migrations.
+Adjust `config/tenancy.php` and `config/webserver.php` to taste. Make sure the
+system connection is configured in `database.php`; the `default` connection is
+used unless you override the system connection name.
 
----
+## Documentation
 
-## Backers
+The [original documentation](https://tenancy.dev) applies to everything not
+listed as changed in [UPGRADE.md](UPGRADE.md).
 
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/tenancy#backer)]
+## Testing
 
-<a href="https://opencollective.com/tenancy#backers" target="_blank"><img src="https://opencollective.com/tenancy/backers.svg?width=890"></a>
-
-
-## Sponsors
-
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/tenancy#sponsor)]
-
-<a href="https://opencollective.com/tenancy/sponsor/0/website" target="_blank"><img src="https://opencollective.com/tenancy/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/tenancy/sponsor/1/website" target="_blank"><img src="https://opencollective.com/tenancy/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/tenancy/sponsor/2/website" target="_blank"><img src="https://opencollective.com/tenancy/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/tenancy/sponsor/3/website" target="_blank"><img src="https://opencollective.com/tenancy/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/tenancy/sponsor/4/website" target="_blank"><img src="https://opencollective.com/tenancy/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/tenancy/sponsor/5/website" target="_blank"><img src="https://opencollective.com/tenancy/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/tenancy/sponsor/6/website" target="_blank"><img src="https://opencollective.com/tenancy/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/tenancy/sponsor/7/website" target="_blank"><img src="https://opencollective.com/tenancy/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/tenancy/sponsor/8/website" target="_blank"><img src="https://opencollective.com/tenancy/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/tenancy/sponsor/9/website" target="_blank"><img src="https://opencollective.com/tenancy/sponsor/9/avatar.svg"></a>
-
-## Contributors
-
-[![](https://sourcerer.io/fame/luceos/hyn/multi-tenant/images/0)](https://sourcerer.io/fame/luceos/hyn/multi-tenant/links/0)[![](https://sourcerer.io/fame/luceos/hyn/multi-tenant/images/1)](https://sourcerer.io/fame/luceos/hyn/multi-tenant/links/1)[![](https://sourcerer.io/fame/luceos/hyn/multi-tenant/images/2)](https://sourcerer.io/fame/luceos/hyn/multi-tenant/links/2)[![](https://sourcerer.io/fame/luceos/hyn/multi-tenant/images/3)](https://sourcerer.io/fame/luceos/hyn/multi-tenant/links/3)[![](https://sourcerer.io/fame/luceos/hyn/multi-tenant/images/4)](https://sourcerer.io/fame/luceos/hyn/multi-tenant/links/4)[![](https://sourcerer.io/fame/luceos/hyn/multi-tenant/images/5)](https://sourcerer.io/fame/luceos/hyn/multi-tenant/links/5)[![](https://sourcerer.io/fame/luceos/hyn/multi-tenant/images/6)](https://sourcerer.io/fame/luceos/hyn/multi-tenant/links/6)[![](https://sourcerer.io/fame/luceos/hyn/multi-tenant/images/7)](https://sourcerer.io/fame/luceos/hyn/multi-tenant/links/7)
-
----
-
-## License and contributing
-
-This package is offered under the [MIT license](license.md). In case you're interested at
-contributing, make sure to read the [contributing guidelines](.github/CONTRIBUTING.md).
-
-### Testing
-
-Run tests using:
+The suite creates and drops real databases and database users, so it needs a
+disposable environment. One matching CI is included:
 
 ```bash
-vendor/bin/phpunit
+docker compose run --rm php composer install
+docker compose run --rm php vendor/bin/phpunit
 ```
 
-If using MySQL, use:
+Target another engine or separation mode:
 
 ```bash
-LIMIT_UUID_LENGTH_32=1 vendor/bin/phpunit
+docker compose run --rm \
+    -e DB_CONNECTION=pgsql -e DB_HOST=pgsql \
+    -e TENANCY_SYSTEM_CONNECTION_NAME=pgsql \
+    php vendor/bin/phpunit
+
+docker compose run --rm \
+    -e DB_HOST=mariadb -e TENANCY_DATABASE_DIVISION_MODE=prefix \
+    php vendor/bin/phpunit
 ```
 
+Build against another PHP version with `PHP_VERSION=8.2 docker compose build php`.
 
-> Please be warned running tests will reset your current application completely, dropping tenant and system
-databases and removing the tenancy.json file inside the Laravel directory.
+> Running the suite drops tenant and system databases. Never point it at
+> anything you care about.
 
-## Changes
+## Credits
 
-All changes are covered in the [changelog](changelog.md).
+- **[Daniël Klabbers](https://luceos.com)** — author of the original package.
+- [Contributors to the original project](https://github.com/tenancy/multi-tenant/graphs/contributors).
+- [Andres Daza](https://github.com/dazza-dev) — maintainer of this continuation.
 
-## Contact
+To support the original author's work, the original project has an
+[Open Collective](https://opencollective.com/tenancy).
 
-Get in touch personally using;
+## License
 
-- The email address provided in the [composer.json](composer.json).
-- [Discord chat](https://tenancy.dev/chat).
-- [Twitter](http://twitter.com/laraveltenancy).
+MIT. Original copyright by Daniël Klabbers — see [license.md](license.md).
