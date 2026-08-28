@@ -25,7 +25,6 @@ use Hyn\Tenancy\Traits\DispatchesEvents;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
-use Illuminate\Support\Facades\URL;
 
 class HostnameActions
 {

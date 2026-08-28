@@ -27,9 +27,9 @@ use Schema;
 
 class Test extends TestCase
 {
-    use InteractsWithBuilds,
-        InteractsWithMigrations,
-        InteractsWithTenancy;
+    use InteractsWithBuilds;
+    use InteractsWithMigrations;
+    use InteractsWithTenancy;
 
     /**
      * Service providers to load during this test.
@@ -89,7 +89,7 @@ class Test extends TestCase
         return $app;
     }
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -127,7 +127,7 @@ class Test extends TestCase
         // ..
     }
 
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         Queue::createPayloadUsing(null);
         $this->cleanupTenancy();

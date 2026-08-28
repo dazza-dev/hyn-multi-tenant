@@ -34,7 +34,7 @@ class DefaultPasswordGenerator implements PasswordGenerator
      * @param Website $website
      * @return string
      */
-    public function generate(Website $website) : string
+    public function generate(Website $website): string
     {
         $key = $this->app['config']->get('tenancy.key');
 

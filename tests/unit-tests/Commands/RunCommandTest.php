@@ -28,7 +28,7 @@ class RunCommandTest extends Test
         $kernel->command('foo', function () {
         });
         $kernel->command('commandThatDoesNotExist', function () {
-            throw new \Exception;
+            throw new \Exception();
         });
         $kernel->command('with:args {foo} {--bar}', function () {
         });

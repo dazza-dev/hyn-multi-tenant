@@ -14,7 +14,6 @@
 
 namespace Hyn\Tenancy\Listeners\URL;
 
-use Hyn\Tenancy\Contracts\CurrentHostname;
 use Hyn\Tenancy\Contracts\Hostname;
 use Hyn\Tenancy\Events\Websites\Identified;
 use Hyn\Tenancy\Events\Websites\Switched;

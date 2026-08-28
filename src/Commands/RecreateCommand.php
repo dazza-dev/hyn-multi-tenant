@@ -79,7 +79,7 @@ class RecreateCommand extends Command
      * @param Website $website
      * @return bool
      */
-    protected function tenantDatabaseExists(Website $website) : bool
+    protected function tenantDatabaseExists(Website $website): bool
     {
         try {
             $this->connection->set($website);

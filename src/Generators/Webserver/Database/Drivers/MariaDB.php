@@ -70,9 +70,9 @@ class MariaDB implements DatabaseGenerator
 
         $this->created(new Created($event->website), $config, $connection);
 
-//        if (!$connection->system($event->website)->statement("RENAME TABLE `$uuid`.`table` TO `{$config['database']}`.`table`")) {
-//            throw new GeneratorFailedException("Could not rename database {$config['database']}, the statement failed.");
-//        }
+        //        if (!$connection->system($event->website)->statement("RENAME TABLE `$uuid`.`table` TO `{$config['database']}`.`table`")) {
+        //            throw new GeneratorFailedException("Could not rename database {$config['database']}, the statement failed.");
+        //        }
 
         return true;
     }

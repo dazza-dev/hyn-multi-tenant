@@ -14,7 +14,6 @@
 
 namespace Hyn\Tenancy\Tests\Listeners;
 
-use Hyn\Tenancy\Environment;
 use Hyn\Tenancy\Tests\Test;
 use Illuminate\Contracts\Foundation\Application;
 

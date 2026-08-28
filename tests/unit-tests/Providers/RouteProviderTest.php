@@ -92,7 +92,7 @@ EOM
         $this->assertEquals('tenant', $route->getName());
     }
 
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         unlink(base_path('routes/tenants.php'));
 

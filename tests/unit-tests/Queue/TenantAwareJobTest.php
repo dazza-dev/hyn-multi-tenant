@@ -29,11 +29,13 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Testing\WithFaker;
 use Hyn\Tenancy\Models\Website;
 use Hyn\Tenancy\Environment;
-use Illuminate\Queue\Events\JobProcessing;
 
 class TestJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $website_id;
 
@@ -49,7 +51,8 @@ class TestJob implements ShouldQueue
 
 class TestNotification extends Notification implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public function via($notifiable): array
     {
@@ -113,7 +116,7 @@ class TenantAwareJobTest extends Test
     /** @test */
     public function dispatch_sync_overrides_without_identified()
     {
-        $second = new Website;
+        $second = new Website();
         $this->websites->create($second);
 
         $id = $second->id;
@@ -139,7 +142,7 @@ class TenantAwareJobTest extends Test
     /** @test */
     public function dispatch_sync_overrides_identified()
     {
-        $second = new Website;
+        $second = new Website();
         $this->websites->create($second);
         $this->activateTenant();
 

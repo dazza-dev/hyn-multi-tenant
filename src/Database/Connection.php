@@ -31,28 +31,30 @@ use Illuminate\Support\Traits\Macroable;
 
 class Connection
 {
-    use DispatchesEvents, ConvertsEntityToWebsite, Macroable;
+    use DispatchesEvents;
+    use ConvertsEntityToWebsite;
+    use Macroable;
 
-    const DEFAULT_SYSTEM_NAME = 'system';
-    const DEFAULT_TENANT_NAME = 'tenant';
+    public const DEFAULT_SYSTEM_NAME = 'system';
+    public const DEFAULT_TENANT_NAME = 'tenant';
 
     /**
     * @deprecated
     */
-    const DEFAULT_MIGRATION_NAME = 'tenant-migration';
+    public const DEFAULT_MIGRATION_NAME = 'tenant-migration';
 
-    const DIVISION_MODE_SEPARATE_DATABASE = 'database';
-    const DIVISION_MODE_SEPARATE_PREFIX = 'prefix';
+    public const DIVISION_MODE_SEPARATE_DATABASE = 'database';
+    public const DIVISION_MODE_SEPARATE_PREFIX = 'prefix';
 
     /**
      * Allows division by schema. Postges only.
      */
-    const DIVISION_MODE_SEPARATE_SCHEMA = 'schema';
+    public const DIVISION_MODE_SEPARATE_SCHEMA = 'schema';
 
     /**
      * Allows manually setting the configuration during event callbacks.
      */
-    const DIVISION_MODE_BYPASS = 'bypass';
+    public const DIVISION_MODE_BYPASS = 'bypass';
 
     /**
      * @var Config

@@ -19,7 +19,6 @@ use Hyn\Tenancy\Contracts\Hostname;
 use Hyn\Tenancy\Contracts\Tenant;
 use Hyn\Tenancy\Contracts\Website;
 use Hyn\Tenancy\Database\Connection;
-use Hyn\Tenancy\Events;
 use Hyn\Tenancy\Jobs\HostnameIdentification;
 use Hyn\Tenancy\Traits\DispatchesEvents;
 use Hyn\Tenancy\Traits\DispatchesJobs;
@@ -28,7 +27,9 @@ use Illuminate\Support\Traits\Macroable;
 
 class Environment
 {
-    use DispatchesJobs, DispatchesEvents, Macroable;
+    use DispatchesJobs;
+    use DispatchesEvents;
+    use Macroable;
 
     /**
      * @var Application

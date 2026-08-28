@@ -28,14 +28,14 @@ class DatabaseDriverProvider extends ServiceProvider
         $this->app->singleton('tenancy.db.drivers', function () {
             return collect($this->drivers());
         });
-        
+
         $this->app->singleton(DatabaseDriverFactory::class);
     }
 
     protected function drivers()
     {
         $isPgsqlSchema = config('tenancy.db.tenant-division-mode') === Connection::DIVISION_MODE_SEPARATE_SCHEMA;
-        
+
         return [
             'pgsql' => $isPgsqlSchema ? PostgresSchema::class : PostgreSQL::class,
             'mysql' => MariaDB::class,

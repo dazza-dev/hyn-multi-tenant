@@ -21,7 +21,9 @@ use Illuminate\Queue\InteractsWithQueue;
 
 class JobExtend implements ShouldQueue
 {
-    use TenantAwareJob, InteractsWithQueue, Dispatchable;
+    use TenantAwareJob;
+    use InteractsWithQueue;
+    use Dispatchable;
     /**
      * Get the raw body of the job.
      *

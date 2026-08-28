@@ -73,9 +73,9 @@ trait InteractsWithTenancy
 
         $this->connection = app(Connection::class);
 
-//        if ($this->connection->system()->getConfig('driver') !== 'pgsql') {
-//            $this->connection->system()->beginTransaction();
-//        }
+        //        if ($this->connection->system()->getConfig('driver') !== 'pgsql') {
+        //            $this->connection->system()->beginTransaction();
+        //        }
 
         $this->handleTenantDestruction();
     }
@@ -151,7 +151,7 @@ trait InteractsWithTenancy
     protected function setUpWebsites(bool $save = false, bool $connect = false)
     {
         if (!$this->website) {
-            $this->website = new Website;
+            $this->website = new Website();
         }
 
         if ($save && !$this->website->exists) {

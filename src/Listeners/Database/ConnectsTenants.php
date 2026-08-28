@@ -46,7 +46,7 @@ class ConnectsTenants
      * @param WebsiteEvent $event
      * @return bool
      */
-    public function switch(WebsiteEvent $event) : bool
+    public function switch(WebsiteEvent $event): bool
     {
         return $this->connection->set($event->website);
     }

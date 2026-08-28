@@ -19,7 +19,7 @@ use Hyn\Tenancy\Contracts\Webserver\DatabaseGenerator;
 
 class DatabaseDriverFactory
 {
-    public function create($driver = 'mysql') : DatabaseGenerator
+    public function create($driver = 'mysql'): DatabaseGenerator
     {
         $drivers = app('tenancy.db.drivers');
 

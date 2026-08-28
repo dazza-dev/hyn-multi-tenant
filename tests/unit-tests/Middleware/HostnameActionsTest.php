@@ -29,7 +29,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class HostnameActionsTest extends Test
 {
-    const RESPONSE = 'ok';
+    public const RESPONSE = 'ok';
 
     /**
      * @test

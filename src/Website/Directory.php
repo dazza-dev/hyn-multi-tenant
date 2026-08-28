@@ -15,14 +15,12 @@
 namespace Hyn\Tenancy\Website;
 
 use Hyn\Tenancy\Contracts\Tenant;
-use Hyn\Tenancy\Environment;
 use Hyn\Tenancy\Contracts\Website;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Filesystem\Filesystem as LocalSystem;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use League\Flysystem\Adapter\Local;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 
 class Directory implements Filesystem
