@@ -24,16 +24,6 @@ jobs:
     container:
       image: php:${{ matrix.php }}-cli
 
-    # The prefix and schema division modes both have pre-existing failures,
-    # verified identical against the untouched upstream baseline and recorded in
-    # KNOWN-ISSUES.md. The same applies to PostgreSQL 15+, which the package
-    # cannot provision at all. These jobs still run and their results stay
-    # visible; they just do not block the modes that are known to work.
-    continue-on-error: >-
-      ${{ matrix.division == 'schema'
-          || matrix.division == 'prefix'
-          || matrix.pg == '16' }}
-
     strategy:
       fail-fast: false
       matrix:
@@ -47,11 +37,9 @@ jobs:
             laravel: '10'
             db: pgsql
             division: schema
-          # PostgreSQL 15 revoked the default CREATE privilege on the public
-          # schema, and the package's provisioning has not caught up, so it
-          # cannot create tenant tables there at all. Upstream only ever tested
-          # against 14. This entry keeps that regression measured instead of
-          # hidden; it is non-blocking until the driver is fixed.
+          # Upstream only tested against PostgreSQL 14. 15 revoked the default
+          # CREATE privilege on the public schema, which the driver accounts
+          # for; this job keeps that covered.
           - php: '8.3'
             laravel: '10'
             db: pgsql
@@ -164,10 +152,15 @@ jobs:
         run: vendor/bin/phpunit
 
   multi-database:
-    name: Multi-database (tenant on a second server)
+    name: Multi-database on ${{ matrix.db }} (tenant on a second server)
     runs-on: ubuntu-latest
     container:
       image: php:8.3-cli
+
+    strategy:
+      fail-fast: false
+      matrix:
+        db: [mysql, pgsql]
 
     # MultiDatabaseTest pins a tenant to another database server through
     # Website::managed_by_database_connection, reaching it at "<DB_HOST>2". It
@@ -196,6 +189,28 @@ jobs:
           --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
           --health-interval=5s --health-timeout=5s --health-retries=20
 
+      # Both pairs always start. Leaving the unused one idle is cheaper than
+      # making services conditional on the matrix.
+      pgsql:
+        image: postgres:16
+        env:
+          POSTGRES_DB: tenancy
+          POSTGRES_USER: testing
+          POSTGRES_PASSWORD: testing
+        options: >-
+          --health-cmd="pg_isready -U testing -d tenancy"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+      pgsql2:
+        image: postgres:16
+        env:
+          POSTGRES_DB: tenancy
+          POSTGRES_USER: testing
+          POSTGRES_PASSWORD: testing
+        options: >-
+          --health-cmd="pg_isready -U testing -d tenancy"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
     steps:
       # See the note in the tests job: git must exist before the checkout, or
       # the tarball fallback strips /tests via .gitattributes export-ignore.
@@ -203,7 +218,8 @@ jobs:
         run: |
           apt-get update
           apt-get install -y --no-install-recommends \
-            git unzip libzip-dev libpq-dev libpng-dev default-mysql-client
+            git unzip libzip-dev libpq-dev libpng-dev \
+            default-mysql-client postgresql-client
           docker-php-ext-install -j"$(nproc)" pdo_mysql pdo_pgsql zip gd
 
       - uses: actions/checkout@v4
@@ -217,19 +233,28 @@ jobs:
         run: composer update --prefer-dist --no-progress --no-interaction
 
       # See the note in the tests job about --skip-ssl.
-      - name: Grant privileges on both servers
+      - name: Grant privileges on both MySQL servers
+        if: matrix.db == 'mysql'
         run: |
           mysql --skip-ssl -h mysql  -uroot -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'testing'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
           mysql --skip-ssl -h mysql2 -uroot -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'testing'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
+      - name: Grant privileges on both PostgreSQL servers
+        if: matrix.db == 'pgsql'
+        env:
+          PGPASSWORD: testing
+        run: |
+          psql -h pgsql  -U testing -d tenancy -c "ALTER ROLE testing WITH SUPERUSER CREATEDB CREATEROLE;"
+          psql -h pgsql2 -U testing -d tenancy -c "ALTER ROLE testing WITH SUPERUSER CREATEDB CREATEROLE;"
+
       - name: Run the test suite with the secondary server available
         env:
-          DB_CONNECTION: mysql
-          DB_HOST: mysql
+          DB_CONNECTION: ${{ matrix.db }}
+          DB_HOST: ${{ matrix.db }}
           DB_DATABASE: tenancy
           DB_USERNAME: testing
           DB_PASSWORD: testing
-          TENANCY_SYSTEM_CONNECTION_NAME: mysql
+          TENANCY_SYSTEM_CONNECTION_NAME: ${{ matrix.db }}
           TENANCY_DATABASE_DIVISION_MODE: database
           LIMIT_UUID_LENGTH_32: 1
           IN_CI: 1
