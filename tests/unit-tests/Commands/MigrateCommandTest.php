@@ -16,6 +16,7 @@ namespace Hyn\Tenancy\Tests\Commands;
 
 use Hyn\Tenancy\Database\Console\Migrations\MigrateCommand;
 use Hyn\Tenancy\Models\Website;
+use InvalidArgumentException;
 
 class MigrateCommandTest extends DatabaseCommandTest
 {
@@ -83,6 +84,26 @@ class MigrateCommandTest extends DatabaseCommandTest
                 "Connection for {$website->uuid} has no table samples"
             );
         });
+    }
+
+    /**
+     * Without a path the migrator would run database/migrations, which belongs
+     * to the system database, against every tenant. The exception is the
+     * guard, not an oversight.
+     *
+     * @test
+     */
+    public function refuses_to_migrate_without_a_path()
+    {
+        config(['tenancy.db.tenant-migrations-path' => null]);
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->artisan('tenancy:migrate', [
+            '--website_id' => [$this->website->id],
+            '--force' => 1,
+            '--no-interaction' => 1,
+        ]);
     }
 
     /**

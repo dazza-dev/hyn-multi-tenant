@@ -71,6 +71,67 @@ class WebsiteRepositoryTest extends Test
         $this->assertEquals('foo', $website->uuid);
     }
 
+    /**
+     * The uuid becomes the tenant's database name, and MySQL caps identifiers
+     * at 64 characters. Its shape is not cosmetic.
+     *
+     * @test
+     */
+    public function a_created_website_is_given_a_uuid_of_the_configured_shape()
+    {
+        $this->websites->create($this->website);
+
+        if (config('tenancy.website.uuid-limit-length-to-32')) {
+            $this->assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $this->website->uuid);
+        } else {
+            $this->assertMatchesRegularExpression(
+                '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+                $this->website->uuid
+            );
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function the_uuid_survives_an_update()
+    {
+        $this->websites->create($this->website);
+
+        $uuid = $this->website->uuid;
+
+        $this->website->managed_by_database_connection = null;
+        $this->websites->update($this->website);
+
+        $this->assertSame(
+            $uuid,
+            $this->website->fresh()->uuid,
+            'A regenerated uuid would point the tenant at a database that does not exist.'
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function renaming_the_uuid_forgets_the_website_under_the_old_one()
+    {
+        $this->websites->create($this->website);
+
+        $old = $this->website->uuid;
+
+        // Warm the cache under the old uuid.
+        $this->assertNotNull($this->websites->findByUuid($old));
+
+        $this->website->uuid = 'renamed'.substr($old, 0, 20);
+        $this->websites->update($this->website);
+
+        $this->assertNull(
+            $this->websites->findByUuid($old),
+            'The website is still reachable under the uuid it no longer has.'
+        );
+        $this->assertNotNull($this->websites->findByUuid($this->website->uuid));
+    }
+
     protected function duringSetUp(Application $app)
     {
         $this->setUpWebsites();

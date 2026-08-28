@@ -195,6 +195,52 @@ class HostnameRepositoryTest extends Test
         ];
     }
 
+    /**
+     * @test
+     */
+    public function finds_a_hostname_by_its_fqdn()
+    {
+        $this->hostnames->create($this->hostname);
+
+        $found = $this->hostnames->findByHostname($this->hostname->fqdn);
+
+        $this->assertNotNull($found);
+        $this->assertTrue($this->hostname->is($found));
+    }
+
+    /**
+     * @test
+     */
+    public function an_unknown_fqdn_finds_nothing()
+    {
+        $this->assertNull($this->hostnames->findByHostname('nobody.testing'));
+    }
+
+    /**
+     * The default hostname is what a console command or a queue worker gets,
+     * where there is no request to identify one from.
+     *
+     * @test
+     */
+    public function the_default_hostname_comes_from_configuration()
+    {
+        $this->hostnames->create($this->hostname);
+
+        config(['tenancy.hostname.default' => $this->hostname->fqdn]);
+
+        $this->assertTrue($this->hostname->is($this->hostnames->getDefault()));
+    }
+
+    /**
+     * @test
+     */
+    public function there_is_no_default_hostname_unless_one_is_configured()
+    {
+        config(['tenancy.hostname.default' => null]);
+
+        $this->assertNull($this->hostnames->getDefault());
+    }
+
     protected function duringSetUp(Application $app)
     {
         $this->setUpWebsites();

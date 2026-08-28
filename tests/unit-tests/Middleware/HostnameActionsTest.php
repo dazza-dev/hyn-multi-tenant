@@ -21,6 +21,7 @@ use Hyn\Tenancy\Environment;
 use Hyn\Tenancy\Middleware\HostnameActions;
 use Hyn\Tenancy\Tests\Test;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Carbon;
@@ -87,6 +88,51 @@ class HostnameActionsTest extends Test
         } catch (Exception $e) {
             $this->assertInstanceOf(NotFoundHttpException::class, $e);
         }
+    }
+
+    /**
+     * @test
+     */
+    public function redirects_when_the_hostname_points_elsewhere()
+    {
+        $this->hostname->redirect_to = 'https://elsewhere.testing';
+        $this->hostname->save();
+
+        $response = $this->middleware($this->hostname);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('https://elsewhere.testing', $response->getTargetUrl());
+    }
+
+    /**
+     * @test
+     */
+    public function forces_https_when_the_hostname_demands_it()
+    {
+        $this->hostname->force_https = true;
+        $this->hostname->save();
+
+        $response = $this->middleware($this->hostname);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertStringStartsWith('https://', $response->getTargetUrl());
+    }
+
+    /**
+     * Maintenance takes precedence: a hostname both under maintenance and
+     * redirecting must not send visitors on to a site that is down.
+     *
+     * @test
+     */
+    public function maintenance_wins_over_a_redirect()
+    {
+        $this->hostname->under_maintenance_since = Carbon::now();
+        $this->hostname->redirect_to = 'https://elsewhere.testing';
+        $this->hostname->save();
+
+        $this->expectException(HttpException::class);
+
+        $this->middleware($this->hostname);
     }
 
     protected function middleware(Hostname $set = null)
