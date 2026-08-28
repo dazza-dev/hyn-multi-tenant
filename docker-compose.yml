@@ -1,0 +1,127 @@
+# Local development environment, mirroring what CI runs.
+#
+#   docker compose run --rm php composer install
+#   docker compose run --rm php vendor/bin/phpunit
+#
+# Target a different engine by overriding DB_CONNECTION and DB_HOST:
+#
+#   docker compose run --rm -e DB_CONNECTION=pgsql -e DB_HOST=pgsql \
+#       -e TENANCY_SYSTEM_CONNECTION_NAME=pgsql php vendor/bin/phpunit
+#
+services:
+  php:
+    build:
+      context: .
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.3}
+    working_dir: /app
+    volumes:
+      - .:/app
+      - composer-cache:/root/.composer/cache
+    environment:
+      DB_CONNECTION: ${DB_CONNECTION:-mysql}
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_DATABASE: tenancy
+      DB_USERNAME: testing
+      DB_PASSWORD: testing
+      TENANCY_SYSTEM_CONNECTION_NAME: ${TENANCY_SYSTEM_CONNECTION_NAME:-mysql}
+      TENANCY_DATABASE_DIVISION_MODE: ${TENANCY_DATABASE_DIVISION_MODE:-database}
+      LIMIT_UUID_LENGTH_32: 1
+      # MultiDatabaseTest places a tenant on a second database server and skips
+      # unless IN_CI is set and a host named "<DB_HOST>2" is reachable.
+      IN_CI: 1
+      # The vhost generator tests only run for the webserver named here, in the
+      # form php-<version>-<webserver>. Left empty so they skip by default;
+      # CI sets it per job. e.g. CIRCLE_JOB=php-8.3-nginx
+      CIRCLE_JOB: ${CIRCLE_JOB:-}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mysql2:
+        condition: service_healthy
+      mariadb:
+        condition: service_healthy
+      mariadb2:
+        condition: service_healthy
+      pgsql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tenancy
+      MYSQL_USER: testing
+      MYSQL_PASSWORD: testing
+    volumes:
+      - ./docker/mysql-init.sql:/docker-entrypoint-initdb.d/10-grants.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Secondary servers. A tenant can be pinned to another database server via
+  # Website::managed_by_database_connection; MultiDatabaseTest exercises that
+  # by connecting to "<DB_HOST>2".
+  mysql2:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tenancy
+      MYSQL_USER: testing
+      MYSQL_PASSWORD: testing
+    volumes:
+      - ./docker/mysql-init.sql:/docker-entrypoint-initdb.d/10-grants.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mariadb:
+    image: mariadb:11
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: tenancy
+      MARIADB_USER: testing
+      MARIADB_PASSWORD: testing
+    volumes:
+      - ./docker/mysql-init.sql:/docker-entrypoint-initdb.d/10-grants.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mariadb2:
+    image: mariadb:11
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: tenancy
+      MARIADB_USER: testing
+      MARIADB_PASSWORD: testing
+    volumes:
+      - ./docker/mysql-init.sql:/docker-entrypoint-initdb.d/10-grants.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  pgsql:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: tenancy
+      POSTGRES_USER: testing
+      POSTGRES_PASSWORD: testing
+    volumes:
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/10-grants.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testing -d tenancy"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  composer-cache:
