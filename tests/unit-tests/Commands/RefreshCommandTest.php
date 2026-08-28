@@ -16,6 +16,7 @@ namespace Hyn\Tenancy\Tests\Commands;
 
 use Hyn\Tenancy\Database\Console\Migrations\RefreshCommand;
 use Hyn\Tenancy\Models\Website;
+use Hyn\Tenancy\Tests\Seeds\SampleSeeder;
 
 class RefreshCommandTest extends DatabaseCommandTest
 {
@@ -44,5 +45,37 @@ class RefreshCommandTest extends DatabaseCommandTest
                 "Connection for {$website->uuid} has no table samples"
             );
         });
+    }
+
+    /**
+     * Seeding has to honour the same tenant filter the rest of the command does.
+     *
+     * @test
+     */
+    public function runs_refresh_with_seeding_on_selected_tenant()
+    {
+        $otherWebsite = $this->getReplicatedWebsite();
+
+        $this->migrateAndTest('migrate');
+
+        $this->migrateAndTest('migrate:refresh', null, null, [
+            '--website_id' => [$this->website->id],
+            '--seed' => 1,
+            '--seeder' => SampleSeeder::class,
+        ]);
+
+        $this->connection->set($this->website);
+        $this->assertEquals(
+            2,
+            $this->connection->get()->table('samples')->count(),
+            "Tenant {$this->website->uuid} was asked to be seeded and was not."
+        );
+
+        $this->connection->set($otherWebsite);
+        $this->assertEquals(
+            0,
+            $this->connection->get()->table('samples')->count(),
+            "Tenant {$otherWebsite->uuid} was seeded without being asked for."
+        );
     }
 }
