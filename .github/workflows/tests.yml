@@ -1,0 +1,253 @@
+name: tests
+
+on:
+  push:
+    branches: [main, 'bridge/**', '*.x']
+  pull_request:
+  schedule:
+    # Weekly, so a broken dependency surfaces before it blocks a release.
+    - cron: '0 6 * * 1'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }} · L${{ matrix.laravel }} · ${{ matrix.db }} · ${{ matrix.division }}
+    runs-on: ubuntu-latest
+
+    # Runs inside a container on purpose. On the bare runner, service containers
+    # are only reachable through localhost, and the suite addresses them by
+    # hostname. In a container they resolve by service name, exactly like the
+    # local docker compose setup.
+    container:
+      image: php:${{ matrix.php }}-cli
+
+    # The prefix and schema division modes both have pre-existing failures,
+    # verified identical against the untouched upstream baseline and recorded in
+    # KNOWN-ISSUES.md. The same applies to PostgreSQL 15+, which the package
+    # cannot provision at all. These jobs still run and their results stay
+    # visible; they just do not block the modes that are known to work.
+    continue-on-error: >-
+      ${{ matrix.division == 'schema'
+          || matrix.division == 'prefix'
+          || matrix.pg == '16' }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3']
+        laravel: ['10']
+        db: [mysql, mariadb, pgsql]
+        division: [database, prefix]
+        include:
+          # The schema division mode only exists on PostgreSQL.
+          - php: '8.3'
+            laravel: '10'
+            db: pgsql
+            division: schema
+          # PostgreSQL 15 revoked the default CREATE privilege on the public
+          # schema, and the package's provisioning has not caught up, so it
+          # cannot create tenant tables there at all. Upstream only ever tested
+          # against 14. This entry keeps that regression measured instead of
+          # hidden; it is non-blocking until the driver is fixed.
+          - php: '8.3'
+            laravel: '10'
+            db: pgsql
+            division: database
+            pg: '16'
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: tenancy
+          MYSQL_USER: testing
+          MYSQL_PASSWORD: testing
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: tenancy
+          MARIADB_USER: testing
+          MARIADB_PASSWORD: testing
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+      pgsql:
+        image: postgres:${{ matrix.pg || '14' }}
+        env:
+          POSTGRES_DB: tenancy
+          POSTGRES_USER: testing
+          POSTGRES_PASSWORD: testing
+        options: >-
+          --health-cmd="pg_isready -U testing -d tenancy"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+    steps:
+      # git has to exist before the checkout. Without it actions/checkout falls
+      # back to downloading a tarball through the API, and that tarball honours
+      # the export-ignore rules in .gitattributes, which strip /tests. Composer
+      # then dies on the tests/Test.php classmap entry.
+      - name: Install system packages and PHP extensions
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            git unzip libzip-dev libpq-dev libpng-dev \
+            default-mysql-client postgresql-client
+          docker-php-ext-install -j"$(nproc)" pdo_mysql pdo_pgsql zip gd
+
+      - uses: actions/checkout@v4
+
+      - name: Install Composer
+        run: |
+          curl -sS https://getcomposer.org/installer | php -- \
+            --install-dir=/usr/local/bin --filename=composer
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: /tmp/composer-cache
+          key: composer-${{ matrix.php }}-L${{ matrix.laravel }}-${{ hashFiles('composer.json') }}
+          restore-keys: composer-${{ matrix.php }}-L${{ matrix.laravel }}-
+
+      # laravel/laravel lives in require-dev and provides the application
+      # skeleton the test bootstrap loads, so it has to be pinned with --dev or
+      # composer promotes it into require.
+      - name: Pin Laravel version
+        run: |
+          composer require --no-update --no-interaction \
+            "laravel/framework:^${{ matrix.laravel }}.0"
+          composer require --no-update --no-interaction --dev \
+            "laravel/laravel:^${{ matrix.laravel }}.0"
+
+      - name: Install dependencies
+        env:
+          COMPOSER_CACHE_DIR: /tmp/composer-cache
+        run: composer update --prefer-dist --no-progress --no-interaction
+
+      # The suite creates and drops tenant databases and database users, so the
+      # test account needs global privileges. Without this it fails partway
+      # through with an access denied error, which is the least obvious way this
+      # setup can break.
+      # --skip-ssl is required: Debian's default-mysql-client is MariaDB's, and
+      # recent versions verify the server certificate by default, which the
+      # self-signed certs these images ship with cannot satisfy. The traffic
+      # never leaves the runner's container network.
+      - name: Grant privileges on MySQL and MariaDB
+        run: |
+          mysql --skip-ssl -h mysql   -uroot -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'testing'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+          mysql --skip-ssl -h mariadb -uroot -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'testing'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+
+      - name: Grant privileges on PostgreSQL
+        env:
+          PGPASSWORD: testing
+        run: psql -h pgsql -U testing -d tenancy -c "ALTER ROLE testing WITH SUPERUSER CREATEDB CREATEROLE;"
+
+      - name: Run the test suite
+        env:
+          DB_CONNECTION: ${{ matrix.db == 'pgsql' && 'pgsql' || 'mysql' }}
+          DB_HOST: ${{ matrix.db }}
+          DB_DATABASE: tenancy
+          DB_USERNAME: testing
+          DB_PASSWORD: testing
+          TENANCY_SYSTEM_CONNECTION_NAME: ${{ matrix.db == 'pgsql' && 'pgsql' || 'mysql' }}
+          TENANCY_DATABASE_DIVISION_MODE: ${{ matrix.division }}
+          LIMIT_UUID_LENGTH_32: 1
+        run: vendor/bin/phpunit
+
+  multi-database:
+    name: Multi-database (tenant on a second server)
+    runs-on: ubuntu-latest
+    container:
+      image: php:8.3-cli
+
+    # MultiDatabaseTest pins a tenant to another database server through
+    # Website::managed_by_database_connection, reaching it at "<DB_HOST>2". It
+    # skips silently unless IN_CI is set and that host exists, so it gets a
+    # dedicated job rather than hiding as a skip in the matrix above.
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: tenancy
+          MYSQL_USER: testing
+          MYSQL_PASSWORD: testing
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+      mysql2:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: tenancy
+          MYSQL_USER: testing
+          MYSQL_PASSWORD: testing
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+    steps:
+      # See the note in the tests job: git must exist before the checkout, or
+      # the tarball fallback strips /tests via .gitattributes export-ignore.
+      - name: Install system packages and PHP extensions
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            git unzip libzip-dev libpq-dev libpng-dev default-mysql-client
+          docker-php-ext-install -j"$(nproc)" pdo_mysql pdo_pgsql zip gd
+
+      - uses: actions/checkout@v4
+
+      - name: Install Composer
+        run: |
+          curl -sS https://getcomposer.org/installer | php -- \
+            --install-dir=/usr/local/bin --filename=composer
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-progress --no-interaction
+
+      # See the note in the tests job about --skip-ssl.
+      - name: Grant privileges on both servers
+        run: |
+          mysql --skip-ssl -h mysql  -uroot -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'testing'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+          mysql --skip-ssl -h mysql2 -uroot -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'testing'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+
+      - name: Run the test suite with the secondary server available
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: mysql
+          DB_DATABASE: tenancy
+          DB_USERNAME: testing
+          DB_PASSWORD: testing
+          TENANCY_SYSTEM_CONNECTION_NAME: mysql
+          TENANCY_DATABASE_DIVISION_MODE: database
+          LIMIT_UUID_LENGTH_32: 1
+          IN_CI: 1
+        run: vendor/bin/phpunit
+
+  style:
+    name: Code style (PSR-12)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-progress --no-interaction
+
+      - name: Check formatting
+        run: vendor/bin/pint --test
