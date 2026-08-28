@@ -225,7 +225,10 @@ class Connection
      */
     public function systemName(): string
     {
-        return $this->config->get('tenancy.db.system-connection-name', static::DEFAULT_SYSTEM_NAME);
+        // A configured-but-empty name reads as "not configured" rather than as
+        // a connection called nothing; the second argument of get() only
+        // covers a key that is absent.
+        return $this->config->get('tenancy.db.system-connection-name') ?: static::DEFAULT_SYSTEM_NAME;
     }
 
     /**
@@ -233,7 +236,7 @@ class Connection
      */
     public function tenantName(): string
     {
-        return $this->config->get('tenancy.db.tenant-connection-name', static::DEFAULT_TENANT_NAME);
+        return $this->config->get('tenancy.db.tenant-connection-name') ?: static::DEFAULT_TENANT_NAME;
     }
 
     /**
