@@ -78,4 +78,30 @@ class RefreshCommandTest extends DatabaseCommandTest
             "Tenant {$otherWebsite->uuid} was seeded without being asked for."
         );
     }
+
+    /**
+     * Passing the filter through must not turn "no filter" into "no tenants".
+     *
+     * @test
+     */
+    public function runs_refresh_with_seeding_on_every_tenant_when_none_is_named()
+    {
+        $otherWebsite = $this->getReplicatedWebsite();
+
+        $this->migrateAndTest('migrate');
+
+        $this->migrateAndTest('migrate:refresh', null, null, [
+            '--seed' => 1,
+            '--seeder' => SampleSeeder::class,
+        ]);
+
+        foreach ([$this->website, $otherWebsite] as $website) {
+            $this->connection->set($website);
+            $this->assertEquals(
+                2,
+                $this->connection->get()->table('samples')->count(),
+                "Tenant {$website->uuid} was skipped although no filter was given."
+            );
+        }
+    }
 }
