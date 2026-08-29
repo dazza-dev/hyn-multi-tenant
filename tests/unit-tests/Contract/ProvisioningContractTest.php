@@ -36,14 +36,10 @@ class ProvisioningContractTest extends Test
 
         $this->websites->create($website);
 
-        $this->connection->set($website);
-
-        $this->assertIsArray(
-            $this->connection->get()->getSchemaBuilder()->getTableListing(),
+        $this->assertTrue(
+            $this->databaseIsReachable($website),
             "Tenant {$website->uuid} was created without storage to connect to."
         );
-
-        $this->connection->purge();
     }
 
     /**
@@ -78,7 +74,11 @@ class ProvisioningContractTest extends Test
     {
         try {
             $this->connection->set($website);
-            $this->connection->get()->getSchemaBuilder()->getTableListing();
+
+            // hasTable() is the portable way to make the schema builder talk
+            // to the tenant's own storage. getTableListing() only exists from
+            // Laravel 10 on, and this package still supports 9.
+            $this->connection->get()->getSchemaBuilder()->hasTable('a_table_no_tenant_has');
 
             return true;
         } catch (Throwable $e) {
