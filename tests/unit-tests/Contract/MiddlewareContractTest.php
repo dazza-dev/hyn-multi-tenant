@@ -14,13 +14,14 @@
 
 namespace Hyn\Tenancy\Tests\Contract;
 
-use Hyn\Tenancy\Contracts\CurrentHostname;
 use Hyn\Tenancy\Environment;
+use Hyn\Tenancy\Events\Websites\Switched;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
 use Hyn\Tenancy\Tests\Test;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Support\Facades\Event;
 use ReflectionProperty;
 
 /**
@@ -72,13 +73,27 @@ class MiddlewareContractTest extends Test
         $this->get('http://' . $this->hostname->fqdn . '/active-tenant')
             ->assertSee($this->website->uuid);
 
-        // A real request gets a new application. Within one, the hostname is
-        // identified once and the binding is what holds it.
-        $this->app->forgetInstance(CurrentHostname::class);
-        resolve(Environment::class)->forgetTenant();
-
         $this->get('http://second.testing/active-tenant')
             ->assertSee($second->uuid);
+    }
+
+    /**
+     * Identification happens once, where it can read the request. Twice means
+     * every listener an application hangs off Switched runs twice with it.
+     *
+     * @test
+     */
+    public function a_request_switches_tenant_once()
+    {
+        $switched = 0;
+
+        Event::listen(Switched::class, function () use (&$switched) {
+            $switched++;
+        });
+
+        $this->get('http://' . $this->hostname->fqdn . '/active-tenant');
+
+        $this->assertEquals(1, $switched);
     }
 
     /**
