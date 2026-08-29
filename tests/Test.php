@@ -14,6 +14,7 @@
 
 namespace Hyn\Tenancy\Tests;
 
+use Hyn\Tenancy\Environment;
 use Hyn\Tenancy\Providers\TenancyProvider;
 use Hyn\Tenancy\Providers\WebserverProvider;
 use Hyn\Tenancy\Tests\Traits\InteractsWithBuilds;
@@ -81,6 +82,11 @@ class Test extends BaseTestCase
         $this->setUpTenancy();
 
         $this->migrateSystem();
+
+        // The application boots before this harness creates the schema, which
+        // no real one does: the environment decided tenancy was not installed.
+        // Dropping it lets the next resolution see the tables.
+        $this->app->forgetInstance(Environment::class);
 
         $this->duringSetUp($this->app);
     }
