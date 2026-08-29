@@ -78,6 +78,35 @@ class MiddlewareContractTest extends Test
     }
 
     /**
+     * The second request re-identifies, and settles on one tenant just as the
+     * first one did.
+     *
+     * @test
+     */
+    public function a_second_request_identifies_once_too()
+    {
+        $second = new Website();
+        $this->websites->create($second);
+
+        $hostname = $this->hostnameFor('second.testing');
+
+        $this->hostnames->attach($hostname, $second);
+
+        $this->get('http://' . $this->hostname->fqdn . '/active-tenant');
+
+        $switched = 0;
+
+        Event::listen(Switched::class, function () use (&$switched) {
+            $switched++;
+        });
+
+        $this->get('http://second.testing/active-tenant')
+            ->assertSee($second->uuid);
+
+        $this->assertEquals(1, $switched);
+    }
+
+    /**
      * A request settles on one tenant, once.
      *
      * @test
