@@ -12,19 +12,16 @@ hostnames, keeping their data, assets and behaviour separated.
 
 | Your Laravel version | What to use |
 | --- | --- |
-| **11** | `dazza-dev/hyn-multi-tenant` — this package |
-| **9 and 10** | The `0.x` line of this repository, or [hyn/multi-tenant](https://github.com/tenancy/multi-tenant) |
+| **12** | `dazza-dev/hyn-multi-tenant` — this package |
+| **11** | The `1.x` line, in maintenance: security and isolation fixes only |
+| **9 and 10** | The `0.x` line, which continues [hyn/multi-tenant](https://github.com/tenancy/multi-tenant) 5.9 |
 
-The `0.x` line is 5.9 with the isolation and provisioning fixes and nothing
-else. It is installed by tag, from this repository:
+Every line is on Packagist under the same name:
 
-```json
-{
-  "repositories": [
-    { "type": "vcs", "url": "https://github.com/dazza-dev/hyn-multi-tenant" }
-  ],
-  "require": { "hyn/multi-tenant": "v0.10.4" }
-}
+```bash
+composer require dazza-dev/hyn-multi-tenant:^2.0   # Laravel 12
+composer require dazza-dev/hyn-multi-tenant:^1.0   # Laravel 11
+composer require dazza-dev/hyn-multi-tenant:^0.10  # Laravel 9 and 10
 ```
 
 ## About this repository
@@ -55,7 +52,7 @@ Tenant separation modes:
 
 ## Requirements
 
-- Laravel 11
+- Laravel 12
 - PHP 8.2 or newer
 - MySQL, MariaDB or PostgreSQL
 

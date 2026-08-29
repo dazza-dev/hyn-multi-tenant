@@ -1,5 +1,29 @@
 # Upgrading
 
+## From 1.x to 2.0
+
+### Requirements
+
+Laravel 12. PHP stays at 8.2 or newer.
+
+The only change is the framework this line accepts: Laravel 11 and 12 need no
+different line of code from this package, so 1.x and 2.x are the same code with
+a different constraint. `1.x` stays available for Laravel 11, with security and
+isolation fixes.
+
+```bash
+composer require dazza-dev/hyn-multi-tenant:^2.0
+```
+
+### The advisory ignore list is gone
+
+`config.policy.advisories.ignore-id` existed because every Laravel 11 release
+carries advisories that will not be fixed: the line left security support in
+March 2026. Laravel 12 installs clean, so the block went with it. If you copied
+it into your own `composer.json` to install this package, you no longer need it
+for that reason.
+
+
 ## From hyn/multi-tenant 5.9 to dazza-dev/hyn-multi-tenant 1.0
 
 ### Requirements
