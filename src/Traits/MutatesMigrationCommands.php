@@ -16,8 +16,6 @@ namespace Hyn\Tenancy\Traits;
 
 use InvalidArgumentException;
 use Hyn\Tenancy\Database\Connection;
-use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Database\Migrations\Migrator;
 use Hyn\Tenancy\Contracts\Repositories\WebsiteRepository;
 
 trait MutatesMigrationCommands
@@ -32,10 +30,11 @@ trait MutatesMigrationCommands
      */
     private $connection;
 
-    public function __construct(Migrator $migrator, Dispatcher $dispatcher)
+    /**
+     * Call from the constructor of each command, after parent::__construct().
+     */
+    protected function bootTenancy(): void
     {
-        parent::__construct($migrator, $dispatcher);
-
         $this->setName('tenancy:' . $this->getName());
         $this->specifyParameters();
 
@@ -45,14 +44,42 @@ trait MutatesMigrationCommands
 
     public function handle()
     {
-        if (!$this->confirmToProceed()) {
-            return;
+        if ($this->refusesToRun()) {
+            return self::FAILURE;
         }
 
         $this->input->setOption('force', true);
         $this->input->setOption('database', $this->connection->tenantName());
 
         $this->processHandle();
+    }
+
+    /**
+     * Whether the command must not run.
+     *
+     * --graceful turns a failed migration into a successful exit code, which
+     * across a loop of tenants hides which of them are left unmigrated.
+     */
+    protected function refusesToRun(): bool
+    {
+        if ($this->input->hasOption('graceful') && $this->option('graceful')) {
+            $this->components->error('--graceful is not available for tenant migrations.');
+
+            return true;
+        }
+
+        return $this->prohibited() || ! $this->confirmToProceed();
+    }
+
+    /**
+     * Whether the environment prohibits this command.
+     *
+     * Of the commands mutated here, migrate is the one the framework does not
+     * make prohibitable.
+     */
+    protected function prohibited(): bool
+    {
+        return method_exists($this, 'isProhibited') && $this->isProhibited();
     }
 
     /**

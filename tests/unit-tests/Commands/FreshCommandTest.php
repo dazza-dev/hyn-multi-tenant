@@ -34,6 +34,57 @@ class FreshCommandTest extends DatabaseCommandTestCase
     }
 
     /**
+     * migrate:fresh destroys every tenant database it reaches, so an
+     * environment that prohibits it has to be obeyed.
+     *
+     * @test
+     */
+    public function a_prohibited_environment_stops_the_command()
+    {
+        $this->migrateAndTest('migrate');
+
+        FreshCommand::prohibit();
+
+        try {
+            $code = $this->artisan('tenancy:migrate:fresh', [
+                '--realpath' => true,
+                '--path' => __DIR__ . '/../../migrations',
+                '--force' => 1,
+                '--no-interaction' => 1,
+            ]);
+        } finally {
+            FreshCommand::prohibit(false);
+        }
+
+        $this->assertEquals(1, $code);
+
+        $this->connection->set($this->website);
+
+        $this->assertTrue(
+            $this->connection->get()->getSchemaBuilder()->hasTable('samples'),
+            'The command ran despite being prohibited.'
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function the_seeder_option_defaults_to_the_configured_tenant_seeder()
+    {
+        config(['tenancy.db.tenant-seed-class' => SampleSeeder::class]);
+
+        $this->reloadArtisanCommand(FreshCommand::class);
+
+        $this->assertEquals(
+            SampleSeeder::class,
+            $this->app->make(FreshCommand::class)
+                ->getDefinition()
+                ->getOption('seeder')
+                ->getDefault()
+        );
+    }
+
+    /**
      * @test
      */
     public function runs_fresh_on_tenants()

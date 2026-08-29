@@ -14,8 +14,10 @@
 
 namespace Hyn\Tenancy\Tests\Commands;
 
+use Hyn\Tenancy\Database\Connection;
 use Hyn\Tenancy\Database\Console\Migrations\MigrateCommand;
 use Hyn\Tenancy\Models\Website;
+use Illuminate\Database\QueryException;
 use InvalidArgumentException;
 
 class MigrateCommandTest extends DatabaseCommandTestCase
@@ -84,6 +86,65 @@ class MigrateCommandTest extends DatabaseCommandTestCase
                 "Connection for {$website->uuid} has no table samples"
             );
         });
+    }
+
+    /**
+     * @test
+     */
+    public function refuses_the_graceful_option()
+    {
+        $this->setUpWebsites(true);
+
+        $code = $this->artisan('tenancy:migrate', [
+            '--website_id' => [$this->website->id],
+            '--graceful' => true,
+            '--realpath' => true,
+            '--path' => __DIR__ . '/../../migrations',
+            '--force' => 1,
+            '--no-interaction' => 1,
+        ]);
+
+        $this->assertEquals(1, $code);
+    }
+
+    /**
+     * A tenant database that is missing means provisioning failed, and the
+     * command has to say so rather than carry on.
+     *
+     * @test
+     */
+    public function a_missing_tenant_database_makes_the_command_fail()
+    {
+        if (config('tenancy.db.tenant-division-mode') !== Connection::DIVISION_MODE_SEPARATE_DATABASE) {
+            $this->markTestSkipped('Only the database division mode gives a tenant a database of its own.');
+        }
+
+        $this->setUpWebsites(true);
+
+        $this->dropDatabaseOf($this->website);
+
+        $this->expectException(QueryException::class);
+
+        $this->artisan('tenancy:migrate', [
+            '--website_id' => [$this->website->id],
+            '--realpath' => true,
+            '--path' => __DIR__ . '/../../migrations',
+            '--force' => 1,
+            '--no-interaction' => 1,
+        ]);
+    }
+
+    protected function dropDatabaseOf(Website $website): void
+    {
+        $this->connection->purge();
+
+        $system = $this->connection->system();
+
+        $name = $system->getDriverName() === 'pgsql'
+            ? '"' . $website->uuid . '"'
+            : '`' . $website->uuid . '`';
+
+        $system->statement("DROP DATABASE IF EXISTS $name");
     }
 
     /**

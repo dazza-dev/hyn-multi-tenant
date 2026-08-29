@@ -194,6 +194,15 @@ return [
          */
         'default' => env('TENANCY_DEFAULT_CONNECTION'),
         /**
+         * Allows tenancy:migrate to create a tenant database that does not
+         * exist, using the behaviour Laravel applies to migrate.
+         *
+         * @warn Off by default. A missing tenant database is normally a
+         *       provisioning failure, and creating one silently leaves the
+         *       tenant connectable with an empty schema.
+         */
+        'allow-migrate-to-create-database' => env('TENANCY_MIGRATE_CREATES_DATABASE', false),
+        /**
          * Used to give names to the system and tenant database connections. By
          * default we configure 'system' and 'tenant'. The tenant connection
          * is set up automatically by this package.

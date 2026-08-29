@@ -19,19 +19,27 @@ use Hyn\Tenancy\Database\Connection;
 use Hyn\Tenancy\Exceptions\ConnectionException;
 use Hyn\Tenancy\Traits\MutatesMigrationCommands;
 use Illuminate\Database\Console\Migrations\FreshCommand as BaseCommand;
+use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Database\Schema\Builder as SchemaBuilder;
 
 class FreshCommand extends BaseCommand
 {
     use MutatesMigrationCommands;
 
+    public function __construct(Migrator $migrator)
+    {
+        parent::__construct($migrator);
+
+        $this->bootTenancy();
+    }
+
     /**
      * Execute the console command
      */
     public function handle()
     {
-        if (!$this->confirmToProceed()) {
-            return;
+        if ($this->refusesToRun()) {
+            return self::FAILURE;
         }
 
         $this->input->setOption('force', true);

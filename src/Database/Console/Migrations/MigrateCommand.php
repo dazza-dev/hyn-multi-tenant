@@ -15,9 +15,34 @@
 namespace Hyn\Tenancy\Database\Console\Migrations;
 
 use Hyn\Tenancy\Traits\MutatesMigrationCommands;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Console\Migrations\MigrateCommand as BaseCommand;
+use Illuminate\Database\Migrations\Migrator;
+use Throwable;
 
 class MigrateCommand extends BaseCommand
 {
     use MutatesMigrationCommands;
+
+    public function __construct(Migrator $migrator, Dispatcher $dispatcher)
+    {
+        parent::__construct($migrator, $dispatcher);
+
+        $this->bootTenancy();
+    }
+
+    /**
+     * Create the database the migration failed to reach, if allowed to.
+     *
+     * A tenant database that is missing is a provisioning failure, and
+     * creating one leaves the tenant connectable but empty.
+     */
+    protected function handleMissingDatabase(Throwable $e)
+    {
+        if (! config('tenancy.db.allow-migrate-to-create-database')) {
+            return false;
+        }
+
+        return parent::handleMissingDatabase($e);
+    }
 }
