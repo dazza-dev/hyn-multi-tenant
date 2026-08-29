@@ -78,8 +78,7 @@ class MiddlewareContractTest extends Test
     }
 
     /**
-     * Identification happens once, where it can read the request. Twice means
-     * every listener an application hangs off Switched runs twice with it.
+     * A request settles on one tenant, once.
      *
      * @test
      */
