@@ -67,6 +67,44 @@ class ProvisioningContractTest extends TestCase
         );
     }
 
+    /**
+     * The password is derived per website, so a database user surviving from
+     * an earlier tenant of the same name holds one that no longer opens
+     * anything. Provisioning has to set it, not assume it.
+     */
+    #[Test]
+    public function provisioning_over_a_surviving_database_user_still_connects()
+    {
+        $this->skipUnlessTenantsOwnADatabase();
+
+        $website = new Website();
+        $this->websites->create($website);
+
+        $uuid = $website->uuid;
+
+        // Delete the tenant but leave its user behind, which is what a failed
+        // drop leaves in place.
+        config(['tenancy.db.auto-delete-tenant-database-user' => false]);
+
+        $this->websites->delete($website, true);
+
+        config(['tenancy.db.auto-delete-tenant-database-user' => true]);
+
+        // Same uuid, new row: same user name, different password.
+        $again = Website::unguarded(function () use ($uuid) {
+            return new Website(['uuid' => $uuid]);
+        });
+
+        $this->websites->create($again);
+
+        $this->assertEquals($uuid, $again->uuid);
+
+        $this->assertTrue(
+            $this->databaseIsReachable($again),
+            "Tenant $uuid was provisioned over a surviving user and cannot connect."
+        );
+    }
+
     protected function databaseIsReachable(Website $website): bool
     {
         try {
