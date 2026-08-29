@@ -14,7 +14,7 @@
 
 namespace Hyn\Tenancy\Tests\Commands;
 
-use App\Console\Kernel;
+use Illuminate\Contracts\Console\Kernel;
 use Hyn\Tenancy\Environment;
 use Hyn\Tenancy\Tests\Test;
 use Illuminate\Contracts\Foundation\Application;
@@ -23,7 +23,7 @@ class RunCommandTest extends Test
 {
     protected function beforeSetUp(Application $app)
     {
-        /** @var Kernel $kernel */
+        /** @var \Illuminate\Foundation\Console\Kernel $kernel */
         $kernel = $app->make(Kernel::class);
 
         $kernel->command('foo', function () {
