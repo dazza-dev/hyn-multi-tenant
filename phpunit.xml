@@ -5,7 +5,7 @@
             <file>./tests/unit-tests/InstallationTest.php</file>
         </testsuite>
         <testsuite name="Continued Test Suite">
-            <directory suffix=".php">./tests/unit-tests/</directory>
+            <directory suffix="Test.php">./tests/unit-tests/</directory>
             <exclude>./tests/unit-tests/InstallationTest.php</exclude>
         </testsuite>
     </testsuites>

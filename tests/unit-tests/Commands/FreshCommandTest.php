@@ -20,7 +20,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Schema\Blueprint;
 use Hyn\Tenancy\Tests\Seeds\SampleSeeder;
 
-class FreshCommandTest extends DatabaseCommandTest
+class FreshCommandTest extends DatabaseCommandTestCase
 {
     /**
      * @test

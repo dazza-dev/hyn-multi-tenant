@@ -197,10 +197,11 @@ class Connection
     {
         $connection = $connection ?? $this->tenantName();
 
+        // The second argument only covers a key that is absent, and purge()
+        // leaves the key in place holding null.
         return $this->config->get(
-            sprintf('database.connections.%s', $connection),
-            []
-        );
+            sprintf('database.connections.%s', $connection)
+        ) ?: [];
     }
 
     /**
@@ -251,9 +252,13 @@ class Connection
             $connection
         );
 
+        // Null, not an empty array: a purged connection has to read as one
+        // that was never configured. Left as [], it is a connection without a
+        // driver, and whoever reads it next gets an undefined key instead of
+        // Laravel's own "connection not configured".
         $this->config->set(
             sprintf('database.connections.%s', $connection),
-            []
+            null
         );
     }
 

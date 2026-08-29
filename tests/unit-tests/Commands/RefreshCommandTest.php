@@ -18,7 +18,7 @@ use Hyn\Tenancy\Database\Console\Migrations\RefreshCommand;
 use Hyn\Tenancy\Models\Website;
 use Hyn\Tenancy\Tests\Seeds\SampleSeeder;
 
-class RefreshCommandTest extends DatabaseCommandTest
+class RefreshCommandTest extends DatabaseCommandTestCase
 {
     /**
      * @test

@@ -19,7 +19,7 @@ use Hyn\Tenancy\Tests\Test;
 use Hyn\Tenancy\Tests\Traits\InteractsWithMigrations;
 use Illuminate\Contracts\Foundation\Application;
 
-abstract class DatabaseCommandTest extends Test
+abstract class DatabaseCommandTestCase extends Test
 {
     use InteractsWithMigrations;
 

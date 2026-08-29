@@ -17,7 +17,7 @@ namespace Hyn\Tenancy\Tests\Commands;
 use Hyn\Tenancy\Traits\DispatchesEvents;
 use Illuminate\Contracts\Foundation\Application;
 
-class RecreateCommandTest extends DatabaseCommandTest
+class RecreateCommandTest extends DatabaseCommandTestCase
 {
     use DispatchesEvents;
 

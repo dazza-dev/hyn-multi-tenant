@@ -18,7 +18,7 @@ use Hyn\Tenancy\Database\Console\Migrations\MigrateCommand;
 use Hyn\Tenancy\Models\Website;
 use InvalidArgumentException;
 
-class MigrateCommandTest extends DatabaseCommandTest
+class MigrateCommandTest extends DatabaseCommandTestCase
 {
     /**
      * @test
