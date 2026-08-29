@@ -160,15 +160,18 @@ class Connection
 
         $existing = $this->configuration($connection);
 
-        if ($website) {
-            // Sets current connection settings.
-            $this->config->set(
-                sprintf('database.connections.%s', $connection),
-                $this->generateConfigurationArray($website)
-            );
-        }
+        $generated = $this->generateConfigurationArray($website);
 
-        if (Arr::get($existing, 'uuid') === optional($website)->uuid) {
+        $this->config->set(
+            sprintf('database.connections.%s', $connection),
+            $generated
+        );
+
+        // The uuid is not enough to tell one configuration from another: the
+        // credentials are derived from the website, so the same tenant can
+        // come back needing a different password. Anything already open would
+        // keep reconnecting with the old one.
+        if ($existing == $generated) {
             $this->emitEvent(
                 new Events\Database\ConnectionSet($website, $connection, false)
             );
