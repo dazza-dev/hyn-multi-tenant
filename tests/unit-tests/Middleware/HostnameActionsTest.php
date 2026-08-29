@@ -135,7 +135,7 @@ class HostnameActionsTest extends Test
         $this->middleware($this->hostname);
     }
 
-    protected function middleware(Hostname $set = null)
+    protected function middleware(?Hostname $set = null)
     {
         app(Environment::class)->hostname($set);
 

@@ -177,7 +177,7 @@ class ConnectionContractTest extends Test
      * Build the tenant configuration under a given division mode, leaving the
      * mode the suite runs under untouched.
      */
-    protected function configurationFor(string $mode, Website $website = null): array
+    protected function configurationFor(string $mode, ?Website $website = null): array
     {
         $previous = config('tenancy.db.tenant-division-mode');
 
