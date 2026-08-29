@@ -113,24 +113,14 @@ class FreshCommand extends BaseCommand
     }
 
     /**
-     * Tenant owned table names, with the prefix stripped off again because the
-     * schema builder applies it when dropping.
+     * Tenant owned table names, with the prefix stripped: the schema builder
+     * applies it again when dropping.
      */
     protected function tenantTables(SchemaBuilder $schema, string $prefix): array
     {
-        // getTableListing() arrived in Laravel 10.37, before which the rows of
-        // getAllTables() are shaped by the driver.
-        $tables = method_exists($schema, 'getTableListing')
-            ? $schema->getTableListing()
-            : array_map(function ($table) {
-                $table = (array) $table;
-
-                return $table['tablename'] ?? $table['name'] ?? reset($table);
-            }, $schema->getAllTables());
-
         $owned = [];
 
-        foreach ($tables as $table) {
+        foreach ($schema->getTableListing() as $table) {
             if (strpos($table, $prefix) === 0) {
                 $owned[] = substr($table, strlen($prefix));
             }

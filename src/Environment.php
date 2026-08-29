@@ -132,10 +132,9 @@ class Environment
     }
 
     /**
-     * Release the active tenant, so that none is active.
+     * Release the active tenant.
      *
-     * tenant(null) reads as releasing one but returns whatever is active
-     * instead, leaving no way to say that there is none.
+     * tenant(null) reads the current one rather than releasing it.
      */
     public function forgetTenant(): void
     {

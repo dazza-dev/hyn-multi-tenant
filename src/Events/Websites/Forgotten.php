@@ -17,10 +17,9 @@ namespace Hyn\Tenancy\Events\Websites;
 use Hyn\Tenancy\Abstracts\AbstractEvent;
 
 /**
- * The active tenant has been released and none is active any more.
+ * The active tenant has been released, and none is active.
  *
- * The counterpart to Switched, for listeners to tear down whatever they set up
- * there. It carries no website, since the point is that there is none.
+ * The counterpart to Switched. It carries no website.
  */
 class Forgotten extends AbstractEvent
 {

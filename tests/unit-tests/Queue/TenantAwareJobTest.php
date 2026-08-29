@@ -113,17 +113,13 @@ class TenantAwareJobTest extends Test
     }
 
     /**
-     * The queue listeners deliberately skip the sync connection, so an inline
-     * job keeps whatever tenant its caller had. With none, it must acquire
-     * none.
+     * An inline job keeps whatever tenant its caller had. With none, it must
+     * acquire none.
      *
      * @test
      */
     public function dispatch_sync_without_identified()
     {
-        // Stated rather than assumed: on Laravel 11 the default hostname is
-        // already identified by the time setUp returns, where on 10 it was
-        // not. Why the identification moved is the question C8 answers.
         resolve(Environment::class)->forgetTenant();
 
         $job = new TestJob();

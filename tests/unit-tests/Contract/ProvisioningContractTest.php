@@ -75,9 +75,7 @@ class ProvisioningContractTest extends Test
         try {
             $this->connection->set($website);
 
-            // hasTable() is the portable way to make the schema builder talk
-            // to the tenant's own storage. getTableListing() only exists from
-            // Laravel 10 on, and this package still supports 9.
+            // Any schema query will do; it only has to reach the tenant's storage.
             $this->connection->get()->getSchemaBuilder()->hasTable('a_table_no_tenant_has');
 
             return true;

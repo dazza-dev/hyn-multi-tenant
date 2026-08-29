@@ -197,8 +197,7 @@ class Connection
     {
         $connection = $connection ?? $this->tenantName();
 
-        // The second argument only covers a key that is absent, and purge()
-        // leaves the key in place holding null.
+        // purge() leaves the key holding null, which the default does not cover.
         return $this->config->get(
             sprintf('database.connections.%s', $connection)
         ) ?: [];
@@ -226,9 +225,8 @@ class Connection
      */
     public function systemName(): string
     {
-        // A configured-but-empty name reads as "not configured" rather than as
-        // a connection called nothing; the second argument of get() only
-        // covers a key that is absent.
+        // An empty name means unconfigured; the default only covers a key that
+        // is missing altogether.
         return $this->config->get('tenancy.db.system-connection-name') ?: static::DEFAULT_SYSTEM_NAME;
     }
 
@@ -252,10 +250,8 @@ class Connection
             $connection
         );
 
-        // Null, not an empty array: a purged connection has to read as one
-        // that was never configured. Left as [], it is a connection without a
-        // driver, and whoever reads it next gets an undefined key instead of
-        // Laravel's own "connection not configured".
+        // Null rather than [], so the connection reads as never configured
+        // instead of as one without a driver.
         $this->config->set(
             sprintf('database.connections.%s', $connection),
             null

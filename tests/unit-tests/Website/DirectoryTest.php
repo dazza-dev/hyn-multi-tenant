@@ -48,8 +48,8 @@ class DirectoryTest extends Test
     }
 
     /**
-     * The parameter stays untyped on purpose: from Laravel 11 the Filesystem
-     * contract declares path($path), and typing it here is a fatal error.
+     * The Filesystem contract declares path($path); typing it here is a fatal
+     * error.
      *
      * @test
      */

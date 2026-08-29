@@ -72,9 +72,8 @@ class Directory implements Filesystem
     }
 
     /**
-     * The parameter is deliberately untyped: from Laravel 11 the Filesystem
-     * contract declares path($path), and narrowing it to string here makes the
-     * declaration incompatible.
+     * The parameter stays untyped: the Filesystem contract declares
+     * path($path), and narrowing it makes the declaration incompatible.
      *
      * @param  string|null  $path
      * @param  bool  $local
@@ -107,8 +106,6 @@ class Directory implements Filesystem
     /**
      * Store a file inside the tenant's directory.
      *
-     * Required by the Filesystem contract from Laravel 11 on.
-     *
      * @param  \Illuminate\Http\File|\Illuminate\Http\UploadedFile|string  $path
      * @param  \Illuminate\Http\File|\Illuminate\Http\UploadedFile|string|array|null  $file
      * @param  mixed  $options
@@ -121,8 +118,6 @@ class Directory implements Filesystem
 
     /**
      * Store a file inside the tenant's directory under the given name.
-     *
-     * Required by the Filesystem contract from Laravel 11 on.
      *
      * @param  \Illuminate\Http\File|\Illuminate\Http\UploadedFile|string  $path
      * @param  \Illuminate\Http\File|\Illuminate\Http\UploadedFile|string|array|null  $file

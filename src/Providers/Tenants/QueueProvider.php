@@ -54,9 +54,7 @@ class QueueProvider extends ServiceProvider
     /**
      * Tenants active before each job, restored once it ends.
      *
-     * A worker hands one job after another to the same process, so a tenant
-     * left active is inherited by whatever runs next. A stack rather than a
-     * single value, since a synchronous job can dispatch another.
+     * A stack rather than a single value, since a job can dispatch another.
      *
      * @var array
      */
@@ -78,8 +76,7 @@ class QueueProvider extends ServiceProvider
             $key = Arr::get($event->job->payload(), 'website_id');
 
             if (! $key) {
-                // A job that declares no tenant is a system job. It must not
-                // inherit the previous one.
+                // A job that declares no tenant must not inherit the previous one.
                 $this->releaseTenant($environment);
 
                 return;
@@ -88,8 +85,8 @@ class QueueProvider extends ServiceProvider
             $tenant = resolve(WebsiteRepository::class)->findById($key);
 
             if (! $tenant) {
-                // Deleted while the job sat in the queue. Resolving nothing
-                // must not mean keeping whatever was active.
+                // Deleted while the job waited. Resolving nothing must not mean
+                // keeping whatever was active.
                 $this->releaseTenant($environment);
 
                 return;
@@ -114,9 +111,8 @@ class QueueProvider extends ServiceProvider
      * Whether the job runs inline rather than on a worker.
      *
      * A synchronous dispatch dies with the request that asked for it, so no
-     * next job inherits anything. It also has deliberate semantics of its own:
-     * DispatcherMiddleware switches the ambient tenant and the suite asserts it
-     * stays switched, which restoring here would undo.
+     * next job inherits anything, and DispatcherMiddleware switches the ambient
+     * tenant on purpose.
      */
     protected function runsInline(?string $connection): bool
     {
@@ -151,8 +147,7 @@ class QueueProvider extends ServiceProvider
      * Release the active tenant, unless an application has opted out.
      *
      * Jobs that relied on an ambient tenant start failing with a connection
-     * error rather than reaching the wrong database, so the old behaviour stays
-     * available while an installation adapts.
+     * error rather than reaching the wrong database.
      */
     protected function releaseTenant(Environment $environment): void
     {
