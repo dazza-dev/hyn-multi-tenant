@@ -53,7 +53,7 @@ trait InteractsWithMigrations
      * @param callable|null $hook
      * @param array         $commandOptions
      */
-    protected function migrateAndTest(string $command, callable $callback = null, callable $hook = null, array $commandOptions = [])
+    protected function migrateAndTest(string $command, ?callable $callback = null, ?callable $hook = null, array $commandOptions = [])
     {
         $code = $this->artisan("tenancy:$command", array_merge([
             '--realpath' => true,
@@ -79,7 +79,7 @@ trait InteractsWithMigrations
      * @param callable|null $callback
      * @param callable|null $hook
      */
-    protected function seedAndTest(callable $callback = null, callable $hook = null)
+    protected function seedAndTest(?callable $callback = null, ?callable $hook = null)
     {
         $code = $this->artisan("tenancy:db:seed", [
             '--class' => SampleSeeder::class,

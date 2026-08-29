@@ -14,11 +14,12 @@
 
 namespace Hyn\Tenancy\Tests\Filesystem;
 
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Tests\Traits\InteractsWithRoutes;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
-class LoadsPrefixedRoutesTest extends Test
+class LoadsPrefixedRoutesTest extends TestCase
 {
     use InteractsWithRoutes;
 
@@ -30,9 +31,7 @@ class LoadsPrefixedRoutesTest extends Test
         $this->setUpWebsites(true, true);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function read_prefixed_additional_routes()
     {
         $this->create_and_test_route('foo', 'v1/foo');

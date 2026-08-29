@@ -15,10 +15,11 @@
 namespace Hyn\Tenancy\Tests\Database;
 
 use Hyn\Tenancy\Database\Connection;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
-class MultiDatabaseTest extends Test
+class MultiDatabaseTest extends TestCase
 {
     protected function duringSetUp(Application $app)
     {
@@ -31,9 +32,7 @@ class MultiDatabaseTest extends Test
         $this->setUpWebsites();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function allow_writing_to_secondary_database()
     {
         if (! env('IN_CI')) {

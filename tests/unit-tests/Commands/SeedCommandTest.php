@@ -18,12 +18,11 @@ use Hyn\Tenancy\Database\Console\Seeds\SeedCommand;
 use Hyn\Tenancy\Models\Website;
 use Illuminate\Contracts\Console\Kernel;
 use Hyn\Tenancy\Tests\Seeds\SampleSeeder;
+use PHPUnit\Framework\Attributes\Test;
 
-class SeedCommandTest extends DatabaseCommandTest
+class SeedCommandTest extends DatabaseCommandTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function is_ioc_bound()
     {
         $this->assertInstanceOf(
@@ -32,9 +31,7 @@ class SeedCommandTest extends DatabaseCommandTest
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function runs_seed_on_one_tenant()
     {
         /** @var Website $otherWebsite */
@@ -67,9 +64,7 @@ class SeedCommandTest extends DatabaseCommandTest
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function runs_configured_seed()
     {
         $this->migrateAndTest('migrate');
@@ -91,9 +86,7 @@ class SeedCommandTest extends DatabaseCommandTest
         $this->assertTrue($this->connection->get()->getSchemaBuilder()->hasTable('samples'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function runs_seed_on_tenants()
     {
         $this->connection->set($this->website);
@@ -115,9 +108,7 @@ class SeedCommandTest extends DatabaseCommandTest
         });
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function purges_connection_after_running_seed_on_multiple_tenants()
     {
         $website = new Website();
@@ -135,9 +126,7 @@ class SeedCommandTest extends DatabaseCommandTest
         $connection->shouldHaveReceived('purge')->twice();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function does_not_purge_connection_after_running_seed_on_one_tenant()
     {
         $this->migrateAndTest('migrate');

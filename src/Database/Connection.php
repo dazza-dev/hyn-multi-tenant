@@ -38,11 +38,6 @@ class Connection
     public const DEFAULT_SYSTEM_NAME = 'system';
     public const DEFAULT_TENANT_NAME = 'tenant';
 
-    /**
-    * @deprecated
-    */
-    public const DEFAULT_MIGRATION_NAME = 'tenant-migration';
-
     public const DIVISION_MODE_SEPARATE_DATABASE = 'database';
     public const DIVISION_MODE_SEPARATE_PREFIX = 'prefix';
 
@@ -126,7 +121,7 @@ class Connection
      * @param string|null $connection
      * @return bool
      */
-    public function exists(string $connection = null): bool
+    public function exists(?string $connection = null): bool
     {
         $connection = $connection ?? $this->tenantName();
 
@@ -167,10 +162,9 @@ class Connection
             $generated
         );
 
-        // The uuid is not enough to tell one configuration from another: the
-        // credentials are derived from the website, so the same tenant can
-        // come back needing a different password. Anything already open would
-        // keep reconnecting with the old one.
+        // The uuid does not tell one configuration from another: credentials
+        // are derived per website, so the same tenant can come back needing a
+        // different password.
         if ($existing == $generated) {
             $this->emitEvent(
                 new Events\Database\ConnectionSet($website, $connection, false)
@@ -196,14 +190,14 @@ class Connection
         return true;
     }
 
-    public function configuration(string $connection = null): array
+    public function configuration(?string $connection = null): array
     {
         $connection = $connection ?? $this->tenantName();
 
+        // purge() leaves the key holding null, which the default does not cover.
         return $this->config->get(
-            sprintf('database.connections.%s', $connection),
-            []
-        );
+            sprintf('database.connections.%s', $connection)
+        ) ?: [];
     }
 
     /**
@@ -228,9 +222,8 @@ class Connection
      */
     public function systemName(): string
     {
-        // A configured-but-empty name reads as "not configured" rather than as
-        // a connection called nothing; the second argument of get() only
-        // covers a key that is absent.
+        // An empty name means unconfigured; the default only covers a key that
+        // is missing altogether.
         return $this->config->get('tenancy.db.system-connection-name') ?: static::DEFAULT_SYSTEM_NAME;
     }
 
@@ -254,9 +247,11 @@ class Connection
             $connection
         );
 
+        // Null rather than [], so the connection reads as never configured
+        // instead of as one without a driver.
         $this->config->set(
             sprintf('database.connections.%s', $connection),
-            []
+            null
         );
     }
 
@@ -265,7 +260,7 @@ class Connection
      * @param string|null $path
      * @return bool
      */
-    public function migrate($for, string $path = null): bool
+    public function migrate($for, ?string $path = null): bool
     {
         $website = $this->convertWebsiteOrHostnameToWebsite($for);
 
@@ -294,7 +289,7 @@ class Connection
      * @param string $class
      * @return bool
      */
-    public function seed($for, string $class = null): bool
+    public function seed($for, ?string $class = null): bool
     {
         $website = $this->convertWebsiteOrHostnameToWebsite($for);
 

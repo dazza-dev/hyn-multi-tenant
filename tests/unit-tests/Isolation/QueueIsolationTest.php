@@ -15,7 +15,7 @@
 namespace Hyn\Tenancy\Tests\Isolation;
 
 use Hyn\Tenancy\Environment;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Tests\Traits\InteractsWithIsolation;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Queue\Job;
@@ -23,6 +23,7 @@ use Illuminate\Queue\Events\JobExceptionOccurred;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Mockery;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Tenant isolation across jobs sharing a queue worker.
@@ -33,7 +34,7 @@ use Mockery;
  * These drive the JobProcessing event, the path a worker takes. The
  * dispatch_sync tests exercise the bus middleware, a different one.
  */
-class QueueIsolationTest extends Test
+class QueueIsolationTest extends TestCase
 {
     use InteractsWithIsolation;
 
@@ -76,9 +77,7 @@ class QueueIsolationTest extends Test
         event(new JobProcessed('database', $job));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_job_carrying_a_website_id_activates_that_tenant()
     {
         $this->workerPicksUp($this->tenantA->id);
@@ -86,9 +85,7 @@ class QueueIsolationTest extends Test
         $this->assertOnlySees(self::MARKER_A, 'job declared website_id of tenant A');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function consecutive_tenant_jobs_do_not_bleed_into_each_other()
     {
         $this->workerPicksUp($this->tenantA->id);
@@ -101,9 +98,7 @@ class QueueIsolationTest extends Test
         $this->assertOnlySees(self::MARKER_A, 'third job, back to tenant A');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_system_job_after_a_tenant_job_does_not_inherit_the_tenant()
     {
         // A job with no website_id is a system job: a scheduled command, a
@@ -122,9 +117,7 @@ class QueueIsolationTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_system_job_after_a_tenant_job_cannot_read_the_tenants_rows()
     {
         // The same defect stated as consequence rather than as state.
@@ -147,9 +140,7 @@ class QueueIsolationTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_finished_job_releases_its_tenant()
     {
         // A worker that has finished a job holds no customer's connection while
@@ -167,9 +158,7 @@ class QueueIsolationTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_job_that_throws_releases_its_tenant()
     {
         // Failure paths are where cleanup gets forgotten, and a worker keeps
@@ -185,9 +174,7 @@ class QueueIsolationTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_job_naming_a_website_that_no_longer_exists_does_not_inherit_the_previous_tenant()
     {
         // Websites get deleted while their jobs are still queued. Resolving

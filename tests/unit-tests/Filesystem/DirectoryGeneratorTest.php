@@ -15,11 +15,13 @@
 namespace Hyn\Tenancy\Tests\Filesystem;
 
 use Hyn\Tenancy\Contracts\Website\UuidGenerator;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
-class DirectoryGeneratorTest extends Test
+class DirectoryGeneratorTest extends TestCase
 {
     /**
      * @var Filesystem
@@ -35,9 +37,7 @@ class DirectoryGeneratorTest extends Test
         $this->filesystem = app('tenancy.disk');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function directory_created()
     {
         $this->assertTrue(config('tenancy.website.auto-create-tenant-directory'));
@@ -48,10 +48,8 @@ class DirectoryGeneratorTest extends Test
         );
     }
 
-    /**
-     * @test
-     * @depends directory_created
-     */
+    #[Test]
+    #[Depends('directory_created')]
     public function directory_modified()
     {
         $this->website->uuid = app(UuidGenerator::class)->generate($this->website);
@@ -61,10 +59,8 @@ class DirectoryGeneratorTest extends Test
         $this->assertTrue($this->filesystem->exists($this->website->uuid));
     }
 
-    /**
-     * @test
-     * @depends directory_modified
-     */
+    #[Test]
+    #[Depends('directory_modified')]
     public function directory_deleted()
     {
         $this->websites->delete($this->website);

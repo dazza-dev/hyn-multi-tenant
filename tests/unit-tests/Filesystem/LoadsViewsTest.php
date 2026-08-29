@@ -14,12 +14,13 @@
 
 namespace Hyn\Tenancy\Tests\Filesystem;
 
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Website\Directory;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\View\Factory;
+use PHPUnit\Framework\Attributes\Test;
 
-class LoadsViewsTest extends Test
+class LoadsViewsTest extends TestCase
 {
     /**
      * @var Directory
@@ -43,9 +44,7 @@ class LoadsViewsTest extends Test
         $this->views = $app['view'];
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function loads_additional_views()
     {
         $this->assertFalse($this->views->exists('foo'));
@@ -64,9 +63,7 @@ class LoadsViewsTest extends Test
         $this->assertEquals('bar', $this->views->make('foo')->render());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function loads_additional_views_overriding_global()
     {
         $this->assertTrue($this->views->exists('welcome'));
@@ -83,9 +80,7 @@ class LoadsViewsTest extends Test
         $this->assertEquals('bar', $this->views->make('welcome')->render());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function loads_additional_views_not_overriding_global()
     {
         $this->assertTrue($this->views->exists('welcome'));
@@ -104,9 +99,7 @@ class LoadsViewsTest extends Test
         $this->assertNotEquals('bar', $this->views->make('welcome')->render());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function loads_additional_views_with_namespace()
     {
         $this->assertTrue($this->views->exists('welcome'));

@@ -17,17 +17,16 @@ namespace Hyn\Tenancy\Tests;
 use Hyn\Tenancy\Contracts\CurrentHostname;
 use Hyn\Tenancy\Environment;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
-class EnvironmentTest extends Test
+class EnvironmentTest extends TestCase
 {
     /**
      * @var Environment
      */
     protected $environment;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sets_hostname()
     {
         $this->environment->hostname($this->hostname);
@@ -37,9 +36,7 @@ class EnvironmentTest extends Test
         $this->assertEquals($this->hostname->fqdn, $identified->fqdn);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function identifies_hostname()
     {
         $identified = $this->app->make(CurrentHostname::class);

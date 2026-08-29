@@ -14,16 +14,16 @@
 
 namespace Hyn\Tenancy\Tests\Repositories;
 
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Support\Arr;
 use Illuminate\Contracts\Foundation\Application;
 use Hyn\Tenancy\Exceptions\ModelValidationException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
-class HostnameRepositoryTest extends Test
+class HostnameRepositoryTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function connect_hostname_to_website()
     {
         $this->setUpHostnames(true);
@@ -32,9 +32,7 @@ class HostnameRepositoryTest extends Test
         $this->assertEquals($this->website->id, $this->hostname->website_id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function assert_validation_fqdn_required()
     {
         $this->expectException(ModelValidationException::class);
@@ -44,9 +42,7 @@ class HostnameRepositoryTest extends Test
         $this->hostnames->create($this->hostname);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function validates_website_relation()
     {
         $this->hostname->website_id = 999;
@@ -61,9 +57,7 @@ class HostnameRepositoryTest extends Test
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function validation_under_maintenance()
     {
         try {
@@ -75,9 +69,7 @@ class HostnameRepositoryTest extends Test
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function validation_redirect_to()
     {
         try {
@@ -89,9 +81,7 @@ class HostnameRepositoryTest extends Test
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function validation_website_id()
     {
         try {
@@ -103,9 +93,7 @@ class HostnameRepositoryTest extends Test
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hostname_update()
     {
         $this->setUpHostnames(true);
@@ -115,9 +103,7 @@ class HostnameRepositoryTest extends Test
         $this->assertEquals($this->hostname->id, $saved->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hostname_delete()
     {
         $this->setUpHostnames(true);
@@ -133,10 +119,8 @@ class HostnameRepositoryTest extends Test
         $this->assertFalse($this->hostname->exists);
     }
 
-    /**
-     * @test
-     * @dataProvider matchHostnames
-     */
+    #[Test]
+    #[DataProvider('matchHostnames')]
     public function hostname_regex_validation_matches(string $hostname)
     {
         $this->hostname->fqdn = $hostname;
@@ -144,10 +128,8 @@ class HostnameRepositoryTest extends Test
         $this->assertTrue($this->hostname->exists);
     }
 
-    /**
-     * @test
-     * @dataProvider noMatchHostnames
-     */
+    #[Test]
+    #[DataProvider('noMatchHostnames')]
     public function hostname_regex_validation_no_matches(string $hostname)
     {
         $this->hostname->fqdn = $hostname;
@@ -159,7 +141,7 @@ class HostnameRepositoryTest extends Test
         }
     }
 
-    protected function matchHostnames(): array
+    public static function matchHostnames(): array
     {
         return [
             ["xn-fsqu00a.xn-0zwm56d"],
@@ -185,7 +167,7 @@ class HostnameRepositoryTest extends Test
         ];
     }
 
-    protected function noMatchHostnames(): array
+    public static function noMatchHostnames(): array
     {
         return [
             ["-0-0O.COM"],
@@ -195,9 +177,7 @@ class HostnameRepositoryTest extends Test
         ];
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function finds_a_hostname_by_its_fqdn()
     {
         $this->hostnames->create($this->hostname);
@@ -208,9 +188,7 @@ class HostnameRepositoryTest extends Test
         $this->assertTrue($this->hostname->is($found));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function an_unknown_fqdn_finds_nothing()
     {
         $this->assertNull($this->hostnames->findByHostname('nobody.testing'));
@@ -219,9 +197,8 @@ class HostnameRepositoryTest extends Test
     /**
      * The default hostname is what a console command or a queue worker gets,
      * where there is no request to identify one from.
-     *
-     * @test
      */
+    #[Test]
     public function the_default_hostname_comes_from_configuration()
     {
         $this->hostnames->create($this->hostname);
@@ -231,9 +208,7 @@ class HostnameRepositoryTest extends Test
         $this->assertTrue($this->hostname->is($this->hostnames->getDefault()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function there_is_no_default_hostname_unless_one_is_configured()
     {
         config(['tenancy.hostname.default' => null]);

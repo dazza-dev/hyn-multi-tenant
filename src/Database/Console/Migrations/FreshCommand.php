@@ -19,19 +19,27 @@ use Hyn\Tenancy\Database\Connection;
 use Hyn\Tenancy\Exceptions\ConnectionException;
 use Hyn\Tenancy\Traits\MutatesMigrationCommands;
 use Illuminate\Database\Console\Migrations\FreshCommand as BaseCommand;
+use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Database\Schema\Builder as SchemaBuilder;
 
 class FreshCommand extends BaseCommand
 {
     use MutatesMigrationCommands;
 
+    public function __construct(Migrator $migrator)
+    {
+        parent::__construct($migrator);
+
+        $this->bootTenancy();
+    }
+
     /**
      * Execute the console command
      */
     public function handle()
     {
-        if (!$this->confirmToProceed()) {
-            return;
+        if ($this->refusesToRun()) {
+            return self::FAILURE;
         }
 
         $this->input->setOption('force', true);
@@ -113,24 +121,14 @@ class FreshCommand extends BaseCommand
     }
 
     /**
-     * Tenant owned table names, with the prefix stripped off again because the
-     * schema builder applies it when dropping.
+     * Tenant owned table names, with the prefix stripped: the schema builder
+     * applies it again when dropping.
      */
     protected function tenantTables(SchemaBuilder $schema, string $prefix): array
     {
-        // getTableListing() arrived in Laravel 10.37, before which the rows of
-        // getAllTables() are shaped by the driver.
-        $tables = method_exists($schema, 'getTableListing')
-            ? $schema->getTableListing()
-            : array_map(function ($table) {
-                $table = (array) $table;
-
-                return $table['tablename'] ?? $table['name'] ?? reset($table);
-            }, $schema->getAllTables());
-
         $owned = [];
 
-        foreach ($tables as $table) {
+        foreach ($schema->getTableListing() as $table) {
             if (strpos($table, $prefix) === 0) {
                 $owned[] = substr($table, strlen($prefix));
             }

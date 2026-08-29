@@ -15,8 +15,9 @@
 namespace Hyn\Tenancy\Tests\Contract;
 
 use Hyn\Tenancy\Environment;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * The observable behaviour of Hyn\Tenancy\Environment.
@@ -25,22 +26,18 @@ use Illuminate\Contracts\Foundation\Application;
  * Tenancy::tenant() — so its answers are part of the contract even where the
  * shape of them is awkward.
  */
-class EnvironmentContractTest extends Test
+class EnvironmentContractTest extends TestCase
 {
     /** @var Environment */
     protected $environment;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function no_tenant_is_active_by_default()
     {
         $this->assertNull($this->environment->tenant());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function setting_the_tenant_makes_it_the_active_one()
     {
         $returned = $this->environment->tenant($this->website);
@@ -49,9 +46,7 @@ class EnvironmentContractTest extends Test
         $this->assertTrue($this->website->is($this->environment->tenant()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function forgetting_the_tenant_leaves_none_active()
     {
         $this->environment->tenant($this->website);
@@ -64,9 +59,8 @@ class EnvironmentContractTest extends Test
     /**
      * A reading of tenant(null) as "release the tenant" is wrong, and quiet
      * about it. forgetTenant() is the one that releases.
-     *
-     * @test
      */
+    #[Test]
     public function passing_null_reads_the_tenant_rather_than_releasing_it()
     {
         $this->environment->tenant($this->website);
@@ -77,9 +71,7 @@ class EnvironmentContractTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function setting_the_hostname_makes_it_the_current_one()
     {
         $returned = $this->environment->hostname($this->hostname);
@@ -88,9 +80,7 @@ class EnvironmentContractTest extends Test
         $this->assertTrue($this->hostname->is($this->environment->hostname()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_website_is_derived_from_the_current_hostname()
     {
         $this->hostnames->attach($this->hostname, $this->website);
@@ -100,17 +90,13 @@ class EnvironmentContractTest extends Test
         $this->assertTrue($this->website->is($this->environment->website()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function there_is_no_website_while_no_hostname_is_current()
     {
         $this->assertNull($this->environment->website());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_environment_reports_tenancy_as_installed()
     {
         $this->assertTrue(

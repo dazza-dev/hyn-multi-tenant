@@ -20,10 +20,11 @@ use Hyn\Tenancy\Database\Connection;
 use Hyn\Tenancy\Events\Database\ConnectionSet;
 use Hyn\Tenancy\Exceptions\ConnectionException;
 use Hyn\Tenancy\Models\Website as WebsiteModel;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * The observable behaviour of Hyn\Tenancy\Database\Connection.
@@ -33,15 +34,14 @@ use Illuminate\Support\Arr;
  * package, so both are pinned here rather than left to the modes that happen
  * to run in CI.
  */
-class ConnectionContractTest extends Test
+class ConnectionContractTest extends TestCase
 {
     /**
      * An empty name is not a connection called nothing. Leaving
      * TENANCY_TENANT_CONNECTION_NAME blank used to reach the database manager
      * as '', and setting it to null crashed on the return type.
-     *
-     * @test
      */
+    #[Test]
     public function an_empty_connection_name_falls_back_to_the_default()
     {
         foreach ([null, ''] as $empty) {
@@ -52,9 +52,7 @@ class ConnectionContractTest extends Test
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_connection_names_follow_configuration()
     {
         $this->withConnectionNames('customer', 'central', function () {
@@ -63,9 +61,7 @@ class ConnectionContractTest extends Test
         });
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_database_mode_names_the_database_after_the_uuid()
     {
         $configuration = $this->configurationFor(Connection::DIVISION_MODE_SEPARATE_DATABASE);
@@ -79,9 +75,7 @@ class ConnectionContractTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_prefix_mode_changes_nothing_but_the_prefix()
     {
         $system = $this->systemConfiguration();
@@ -95,9 +89,7 @@ class ConnectionContractTest extends Test
         $this->assertSame($system['username'], $configuration['username']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_schema_mode_points_the_search_path_at_the_uuid()
     {
         $configuration = $this->configurationFor(Connection::DIVISION_MODE_SEPARATE_SCHEMA);
@@ -111,9 +103,7 @@ class ConnectionContractTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_bypass_mode_hands_over_the_system_configuration_untouched()
     {
         $system = $this->systemConfiguration();
@@ -129,9 +119,8 @@ class ConnectionContractTest extends Test
     /**
      * Every mode stamps the uuid, and Connection::set() compares it to decide
      * whether the open connection still belongs to the tenant being set.
-     *
-     * @test
      */
+    #[Test]
     public function every_mode_stamps_the_tenant_uuid()
     {
         foreach ([
@@ -148,9 +137,7 @@ class ConnectionContractTest extends Test
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function an_unknown_division_mode_is_refused()
     {
         $this->expectException(ConnectionException::class);
@@ -158,9 +145,7 @@ class ConnectionContractTest extends Test
         $this->configurationFor('every-tenant-in-one-heap');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_tenant_configuration_is_empty_until_a_tenant_is_set()
     {
         $this->assertSame([], $this->connection->configuration());
@@ -184,9 +169,8 @@ class ConnectionContractTest extends Test
      * The credentials are derived from the website, so the same uuid can come
      * back needing a different password. Keeping the open connection then
      * means reconnecting with the old one.
-     *
-     * @test
      */
+    #[Test]
     public function a_tenant_whose_credentials_changed_purges_the_connection()
     {
         $this->setUpWebsites(true);
@@ -214,7 +198,7 @@ class ConnectionContractTest extends Test
         $this->assertSame([false, true], $purged);
     }
 
-    protected function configurationFor(string $mode, Website $website = null): array
+    protected function configurationFor(string $mode, ?Website $website = null): array
     {
         $previous = config('tenancy.db.tenant-division-mode');
 

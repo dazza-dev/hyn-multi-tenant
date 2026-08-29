@@ -73,10 +73,8 @@ class RunCommand extends Command
 
         $exitCodes = [];
 
-        // Whatever was active before, the command puts back afterwards. The
-        // loop leaves the last tenant of the last chunk active otherwise, and
-        // that outlives the command whenever it is called from a request or a
-        // job rather than from a terminal.
+        // Otherwise the last tenant of the loop stays active, outliving a
+        // command called from a request or a job.
         $previous = $environment->tenant();
 
         try {

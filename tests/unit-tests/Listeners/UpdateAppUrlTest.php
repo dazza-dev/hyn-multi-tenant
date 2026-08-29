@@ -14,10 +14,11 @@
 
 namespace Hyn\Tenancy\Tests\Listeners;
 
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
-class UpdateAppUrlTest extends Test
+class UpdateAppUrlTest extends TestCase
 {
     protected function duringSetUp(Application $app)
     {
@@ -26,15 +27,12 @@ class UpdateAppUrlTest extends Test
         $this->setUpWebsites(true, true);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function tenant_url_used()
     {
         $url = config('app.url');
         $this->assertEquals($url, url()->to('/'));
 
-        // seg fault here for me, let's see what CircleCi does.
         $this->activateTenant();
 
         $this->assertEquals('http://'.$this->hostname->fqdn, config('app.url'));

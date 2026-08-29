@@ -14,11 +14,12 @@
 
 namespace Hyn\Tenancy\Tests\Filesystem;
 
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Website\Directory;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
-class LoadsVendorTest extends Test
+class LoadsVendorTest extends TestCase
 {
     /**
      * @var Directory
@@ -34,9 +35,7 @@ class LoadsVendorTest extends Test
         $this->directory->setWebsite($this->website);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function reads_additional_vendor()
     {
         // Directory should now exists, let's write the config folder.

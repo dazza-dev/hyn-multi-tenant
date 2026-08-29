@@ -21,13 +21,20 @@ class RefreshCommand extends BaseCommand
 {
     use MutatesMigrationCommands;
 
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->bootTenancy();
+    }
+
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        if (!$this->confirmToProceed()) {
-            return;
+        if ($this->refusesToRun()) {
+            return self::FAILURE;
         }
 
         $database = $this->connection->tenantName();

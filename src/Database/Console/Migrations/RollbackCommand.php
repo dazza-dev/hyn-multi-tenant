@@ -16,8 +16,16 @@ namespace Hyn\Tenancy\Database\Console\Migrations;
 
 use Hyn\Tenancy\Traits\MutatesMigrationCommands;
 use Illuminate\Database\Console\Migrations\RollbackCommand as BaseCommand;
+use Illuminate\Database\Migrations\Migrator;
 
 class RollbackCommand extends BaseCommand
 {
     use MutatesMigrationCommands;
+
+    public function __construct(Migrator $migrator)
+    {
+        parent::__construct($migrator);
+
+        $this->bootTenancy();
+    }
 }

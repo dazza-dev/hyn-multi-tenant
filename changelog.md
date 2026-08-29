@@ -1,3 +1,38 @@
+# Changelog
+
+## dazza-dev/hyn-multi-tenant
+
+- 1.0.0
+    - Laravel 11, PHP 8.2 and up. Doctrine DBAL is no longer required
+    - The hostname is identified per request rather than per application, so
+      the package works on Octane and its kin
+    - The migration commands declare the constructors their parents have, and
+      honour a prohibited environment again
+    - `tenancy:migrate` refuses `--graceful` and will not create a missing
+      tenant database
+    - `Website\Directory` satisfies the Filesystem contract Laravel 11 ships
+    - The test suite runs on Orchestra Testbench
+
+## hyn/multi-tenant, continued as the 0.x line
+
+- 0.10.4
+    - The hostname is identified per request, closing a tenant leak on long
+      lived processes
+- 0.10.3
+    - A connection name configured as empty falls back to the default again
+- 0.10.2
+    - Releasing the tenant releases its filesystem disk with it
+    - `tenancy:run` puts back the tenant it found
+- 0.10.1
+    - `tenancy:migrate:refresh` seeds only the tenants it was given
+- 0.10.0
+    - The queue releases the tenant between jobs, instead of carrying it over
+    - `Connection::set(null)` clears the connection configuration
+    - `tenancy:migrate:fresh` no longer wipes the whole database in prefix mode
+    - PostgreSQL 15 and newer can provision tenants again
+
+## hyn/multi-tenant
+
 - 5.7.2
     - Trim slashes from request uri before redirecting (#1001)
 - 5.7.1

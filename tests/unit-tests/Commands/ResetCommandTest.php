@@ -16,12 +16,11 @@ namespace Hyn\Tenancy\Tests\Commands;
 
 use Hyn\Tenancy\Database\Console\Migrations\ResetCommand;
 use Hyn\Tenancy\Models\Website;
+use PHPUnit\Framework\Attributes\Test;
 
-class ResetCommandTest extends DatabaseCommandTest
+class ResetCommandTest extends DatabaseCommandTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function is_ioc_bound()
     {
         $this->assertInstanceOf(
@@ -30,9 +29,7 @@ class ResetCommandTest extends DatabaseCommandTest
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function runs_reset_on_tenants()
     {
         $this->migrateAndTest('migrate');

@@ -21,15 +21,15 @@ use Hyn\Tenancy\Contracts\CurrentHostname;
 use Hyn\Tenancy\Environment;
 use Hyn\Tenancy\Providers\Tenants\ConnectionProvider;
 use Hyn\Tenancy\Tests\Extend\NonExtend;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Database\Connection as DatabaseConnection;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
-class ConnectionTest extends Test
+class ConnectionTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function without_identification_no_tenant_connection_is_active()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -39,10 +39,8 @@ class ConnectionTest extends Test
         $this->connection->get();
     }
 
-    /**
-     * @test
-     * @depends without_identification_no_tenant_connection_is_active
-     */
+    #[Test]
+    #[Depends('without_identification_no_tenant_connection_is_active')]
     public function hostname_identification_switches_connection()
     {
         $this->setUpHostnames(true);
@@ -60,10 +58,8 @@ class ConnectionTest extends Test
         $this->assertTrue($this->connection->system() instanceof DatabaseConnection, 'System connection is not working.');
     }
 
-    /**
-     * @test
-     * @depends hostname_identification_switches_connection
-     */
+    #[Test]
+    #[Depends('hostname_identification_switches_connection')]
     public function both_connections_work()
     {
         $this->setUpHostnames(true);
@@ -74,10 +70,8 @@ class ConnectionTest extends Test
         $this->assertTrue($this->connection->system() instanceof DatabaseConnection, 'System connection fails once tenant connection is set up.');
     }
 
-    /**
-     * @test
-     * @depends both_connections_work
-     */
+    #[Test]
+    #[Depends('both_connections_work')]
     public function can_migrate_the_tenant()
     {
         config(['tenancy.db.tenant-migrations-path' => __DIR__ . '/../../migrations']);
@@ -91,9 +85,7 @@ class ConnectionTest extends Test
         $this->assertTrue($this->connection->get()->getSchemaBuilder()->hasTable('samples'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function override_to_tenant_connection()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -107,9 +99,7 @@ class ConnectionTest extends Test
         (new NonExtend())->getConnection()->getConfig();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function override_to_system_connection()
     {
         config(['tenancy.db.force-system-connection-of-models' => [NonExtend::class]]);
@@ -120,9 +110,7 @@ class ConnectionTest extends Test
         $this->assertEquals($this->connection->systemName(), (new NonExtend())->getConnection()->getName());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_rotate_tenant_key()
     {
         $this->setUpHostnames(true);

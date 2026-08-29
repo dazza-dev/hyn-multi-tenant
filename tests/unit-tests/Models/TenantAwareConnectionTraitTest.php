@@ -15,13 +15,12 @@
 namespace Hyn\Tenancy\Tests\Models;
 
 use Hyn\Tenancy\Tests\Extend\AwareExtend;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
-class TenantAwareConnectionTraitTest extends Test
+class TenantAwareConnectionTraitTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function uses_correct_connection()
     {
         $model = new AwareExtend();

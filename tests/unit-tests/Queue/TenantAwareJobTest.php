@@ -15,7 +15,7 @@
 namespace Hyn\Tenancy\Tests\Queue;
 
 use Illuminate\Contracts\Foundation\Application;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -28,6 +28,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Event;
 use Hyn\Tenancy\Models\Website;
 use Hyn\Tenancy\Environment;
+use PHPUnit\Framework\Attributes\Test;
 
 class TestJob implements ShouldQueue
 {
@@ -76,14 +77,14 @@ class TestNotifiable
 }
 
 
-class TenantAwareJobTest extends Test
+class TenantAwareJobTest extends TestCase
 {
     protected function duringSetUp(Application $app)
     {
         $this->setUpHostnames(true);
         $this->setUpWebsites(true, true);
     }
-    /** @test */
+    #[Test]
     public function current_website_id_is_included_in_job_payload()
     {
         $this->activateTenant();
@@ -98,7 +99,7 @@ class TenantAwareJobTest extends Test
         });
     }
 
-    /** @test */
+    #[Test]
     public function current_website_id_is_included_in_notification_job_payload()
     {
         $this->activateTenant();
@@ -115,9 +116,8 @@ class TenantAwareJobTest extends Test
     /**
      * An inline job keeps whatever tenant its caller had. With none, it must
      * acquire none.
-     *
-     * @test
      */
+    #[Test]
     public function dispatch_sync_without_identified()
     {
         resolve(Environment::class)->forgetTenant();
@@ -128,7 +128,7 @@ class TenantAwareJobTest extends Test
         $this->assertNull(resolve(Environment::class)->tenant());
     }
 
-    /** @test */
+    #[Test]
     public function dispatch_sync_overrides_without_identified()
     {
         $second = new Website();
@@ -141,7 +141,7 @@ class TenantAwareJobTest extends Test
         $this->assertEquals($id, resolve(Environment::class)->tenant()->id);
     }
 
-    /** @test */
+    #[Test]
     public function dispatch_sync_identified()
     {
         $this->activateTenant();
@@ -154,7 +154,7 @@ class TenantAwareJobTest extends Test
         $this->assertEquals($id, resolve(Environment::class)->tenant()->id);
     }
 
-    /** @test */
+    #[Test]
     public function dispatch_sync_overrides_identified()
     {
         $second = new Website();

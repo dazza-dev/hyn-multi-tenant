@@ -18,18 +18,19 @@ use Hyn\Tenancy\Environment;
 use Hyn\Tenancy\Events\Websites\Switched;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Models\Website;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Event;
 use ReflectionProperty;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * The package installs itself into the request by prepending middleware to the
  * global stack. Nothing else in the suite reaches a booted HTTP kernel, so a
  * broken installation shows up only here.
  */
-class MiddlewareContractTest extends Test
+class MiddlewareContractTest extends TestCase
 {
     protected function duringSetUp(Application $app)
     {
@@ -44,9 +45,7 @@ class MiddlewareContractTest extends Test
         });
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_configured_middleware_lead_the_global_stack()
     {
         $configured = config('tenancy.middleware');
@@ -58,9 +57,7 @@ class MiddlewareContractTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_request_is_served_the_tenant_of_the_hostname_it_asks_for()
     {
         $second = new Website();
@@ -80,9 +77,8 @@ class MiddlewareContractTest extends Test
     /**
      * The second request re-identifies, and settles on one tenant just as the
      * first one did.
-     *
-     * @test
      */
+    #[Test]
     public function a_second_request_identifies_once_too()
     {
         $second = new Website();
@@ -108,9 +104,8 @@ class MiddlewareContractTest extends Test
 
     /**
      * A request settles on one tenant, once.
-     *
-     * @test
      */
+    #[Test]
     public function a_request_switches_tenant_once()
     {
         $switched = 0;
@@ -127,9 +122,8 @@ class MiddlewareContractTest extends Test
     /**
      * Without a default hostname configured, an unknown one has no tenant to
      * fall back to, and must be served none.
-     *
-     * @test
      */
+    #[Test]
     public function a_request_to_an_unknown_hostname_is_served_no_tenant()
     {
         config(['tenancy.hostname.default' => null]);
