@@ -166,25 +166,6 @@ return [
          */
         'update-app-url' => false,
     ],
-    'queue' => [
-        /**
-         * Release the active tenant when a job declares none, and after every
-         * job ends or fails.
-         *
-         * A queue worker is a long-lived process handling one job after
-         * another in the same memory. Without this, a job with no website_id
-         * runs against whichever tenant went before it, on a connection that
-         * is valid and authenticated: nothing errors, nothing is logged, and
-         * the only evidence is data landing in the wrong tenant's database.
-         *
-         * @warn Turning this off restores the behaviour of hyn/multi-tenant
-         *       5.9 and earlier, which leaks tenant context between jobs.
-         *       Only do so as a temporary measure while adapting jobs that
-         *       relied on inheriting an ambient tenant.
-         */
-        'reset-tenant-between-jobs' => env('TENANCY_QUEUE_RESET_TENANT', true),
-    ],
-
     'db' => [
         /**
          * The default connection to use; this overrules the Laravel database.default
@@ -193,15 +174,6 @@ return [
          * connection to - for instance - the tenant connection 'tenant'.
          */
         'default' => env('TENANCY_DEFAULT_CONNECTION'),
-        /**
-         * Allows tenancy:migrate to create a tenant database that does not
-         * exist, using the behaviour Laravel applies to migrate.
-         *
-         * @warn Off by default. A missing tenant database is normally a
-         *       provisioning failure, and creating one silently leaves the
-         *       tenant connectable with an empty schema.
-         */
-        'allow-migrate-to-create-database' => env('TENANCY_MIGRATE_CREATES_DATABASE', false),
         /**
          * Used to give names to the system and tenant database connections. By
          * default we configure 'system' and 'tenant'. The tenant connection

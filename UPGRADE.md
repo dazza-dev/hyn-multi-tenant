@@ -51,10 +51,24 @@ construct the event by hand; passing `null` explicitly is still fine.
 
 Laravel 11 lets `migrate` create a missing database. In multi-tenancy that
 masks a provisioning failure by leaving a tenant connectable with an empty
-schema, so it is off here.
+schema, so it is refused here. There is no setting for it: a tenant without a
+database has not been provisioned, and that is worth an error.
 
-Set `TENANCY_MIGRATE_CREATES_DATABASE=true`, or
-`tenancy.db.allow-migrate-to-create-database`, for the framework's behaviour.
+### The two escape hatches of the 0.x line are gone
+
+`tenancy.queue.reset-tenant-between-jobs` and
+`tenancy.db.allow-migrate-to-create-database` do not exist here. Remove them
+from `config/tenancy.php` if you carried the file over.
+
+The first restored the behaviour where a queue worker carried one job's tenant
+into the next, so that jobs written against it kept working while they were
+adapted. That is a leak between tenants, and this is the version where the
+adapting was supposed to have happened.
+
+The second guarded a path the tenant loop never reaches: the connection to the
+missing database fails before the framework offers to create it. A setting that
+cannot be observed doing anything is not worth honouring for the life of a
+major version.
 
 ### tenancy:migrate refuses --graceful
 

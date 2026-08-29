@@ -32,17 +32,13 @@ class MigrateCommand extends BaseCommand
     }
 
     /**
-     * Create the database the migration failed to reach, if allowed to.
+     * Refuse to create the database the migration failed to reach.
      *
      * A tenant database that is missing is a provisioning failure, and
      * creating one leaves the tenant connectable but empty.
      */
     protected function handleMissingDatabase(Throwable $e)
     {
-        if (! config('tenancy.db.allow-migrate-to-create-database')) {
-            return false;
-        }
-
-        return parent::handleMissingDatabase($e);
+        return false;
     }
 }

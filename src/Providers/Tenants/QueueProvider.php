@@ -124,12 +124,6 @@ class QueueProvider extends ServiceProvider
      */
     protected function restoreTenant(): void
     {
-        if (! config('tenancy.queue.reset-tenant-between-jobs', true)) {
-            array_pop($this->tenantStack);
-
-            return;
-        }
-
         $previous = array_pop($this->tenantStack);
 
         $environment = resolve(Environment::class);
@@ -144,17 +138,13 @@ class QueueProvider extends ServiceProvider
     }
 
     /**
-     * Release the active tenant, unless an application has opted out.
+     * Release the active tenant.
      *
      * Jobs that relied on an ambient tenant start failing with a connection
      * error rather than reaching the wrong database.
      */
     protected function releaseTenant(Environment $environment): void
     {
-        if (! config('tenancy.queue.reset-tenant-between-jobs', true)) {
-            return;
-        }
-
         $environment->forgetTenant();
     }
 }
