@@ -85,8 +85,10 @@ class Test extends BaseTestCase
 
         // The application boots before this harness creates the schema, which
         // no real one does: the environment decided tenancy was not installed.
-        // Dropping it lets the next resolution see the tables.
+        // Building it again here, rather than leaving it to whoever asks
+        // first, keeps the request itself looking like a real one.
         $this->app->forgetInstance(Environment::class);
+        $this->app->make(Environment::class);
 
         $this->duringSetUp($this->app);
     }
