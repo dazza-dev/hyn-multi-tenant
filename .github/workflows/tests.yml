@@ -28,20 +28,20 @@ jobs:
       fail-fast: false
       matrix:
         php: ['8.2', '8.3', '8.4']
-        laravel: ['11']
+        laravel: ['12']
         db: [mysql, mariadb, pgsql]
         division: [database, prefix]
         include:
           # The schema division mode only exists on PostgreSQL.
           - php: '8.3'
-            laravel: '11'
+            laravel: '12'
             db: pgsql
             division: schema
           # Upstream only tested against PostgreSQL 14. 15 revoked the default
           # CREATE privilege on the public schema, which the driver accounts
           # for; this job keeps that covered.
           - php: '8.3'
-            laravel: '11'
+            laravel: '12'
             db: pgsql
             division: database
             pg: '16'
@@ -114,7 +114,7 @@ jobs:
           composer require --no-update --no-interaction \
             "laravel/framework:^${{ matrix.laravel }}.0"
           composer require --no-update --no-interaction --dev \
-            "orchestra/testbench:^9.0"
+            "orchestra/testbench:^10.0"
 
       - name: Install dependencies
         env:

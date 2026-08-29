@@ -67,12 +67,19 @@ EOM
         $this->activateTenant();
     }
 
+    /**
+     * The tenant route file does not add to the global routes, it replaces the
+     * ones it names: RouteCollection keys by method and URI.
+     */
     #[Test]
     public function overrides_global_route()
     {
         $this->overrideGlobalRoute();
 
-        $this->assertEquals(2, $this->app['router']->getRoutes()->count());
+        $names = collect($this->app['router']->getRoutes())->map->getName();
+
+        $this->assertContains('other', $names, 'The other global route did not survive.');
+        $this->assertNotContains('global', $names, 'The tenant route did not take over /.');
     }
 
     #[Test]
