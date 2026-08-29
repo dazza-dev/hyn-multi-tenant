@@ -1,6 +1,81 @@
 # Upgrading
 
-## Unreleased
+## From hyn/multi-tenant 5.9 to dazza-dev/hyn-multi-tenant 1.0
+
+### Requirements
+
+- PHP 8.2 or newer, up from 8.0.
+- Laravel 11. Laravel 9 and 10 are supported by the `0.x` line of this same
+  repository, which is 5.9 with the fixes below and nothing else.
+
+### Installation
+
+```bash
+composer remove hyn/multi-tenant
+composer require dazza-dev/hyn-multi-tenant
+```
+
+The namespace stays `Hyn\Tenancy\`, so no `use` statement changes. The package
+declares a conflict with `hyn/multi-tenant`, so the two can never be installed
+side by side.
+
+### The hostname is identified per request   ⚠️ behaviour change
+
+**What changed.** Identification used to happen while the service providers
+booted, which is once per application. It happens in the
+`EagerIdentification` middleware now, which is once per request.
+
+**How this can affect you.** On PHP-FPM, nothing: every request builds an
+application, so identification already happened per request. On a long lived
+process — Octane, Swoole, RoadRunner — the second request used to be served the
+tenant identified for the first one, and its database with it. It is now served
+its own.
+
+**What to do.** Nothing, unless you worked around this with your own
+re-identification, in which case you can drop it.
+
+### Events\Database\ConnectionSet takes a required first parameter
+
+```php
+// before
+public function __construct(Website $website = null, string $connection, bool $purged = true)
+// after
+public function __construct(?Website $website, string $connection, bool $purged = true)
+```
+
+The parameter was optional before a required one, which PHP has deprecated
+since 8.0 and which never worked as a default anyway. Only affects you if you
+construct the event by hand; passing `null` explicitly is still fine.
+
+### tenancy:migrate will not create a database that is missing
+
+Laravel 11 lets `migrate` create a missing database. In multi-tenancy that
+masks a provisioning failure by leaving a tenant connectable with an empty
+schema, so it is off here.
+
+Set `TENANCY_MIGRATE_CREATES_DATABASE=true`, or
+`tenancy.db.allow-migrate-to-create-database`, for the framework's behaviour.
+
+### tenancy:migrate refuses --graceful
+
+`--graceful` returns a successful exit code even when the migration failed.
+Across a loop of tenants that hides which of them are left unmigrated.
+
+### The destructive commands honour a prohibited environment
+
+`tenancy:migrate:fresh`, `:refresh`, `:reset` and `:rollback` now respect
+`isProhibited()`, which is how Laravel lets you block them in production. The
+package used to replace the framework's `handle()` and lose the check with it.
+
+### Doctrine DBAL is no longer required
+
+It was declared as a runtime dependency and used nowhere. If your own code
+relied on it arriving through this package, require it yourself.
+
+## 0.x
+
+The line that continues 5.9 for Laravel 9 and 10. Everything below applies to
+1.0 as well.
 
 ### The queue no longer carries a tenant between jobs   ⚠️ behaviour change
 

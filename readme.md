@@ -1,4 +1,4 @@
-# hyn/multi-tenant — maintained continuation
+# dazza-dev/hyn-multi-tenant
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](license.md)
 [![PHP](https://img.shields.io/badge/php-8.2%2B-777bb4.svg)](https://php.net)
@@ -12,11 +12,20 @@ hostnames, keeping their data, assets and behaviour separated.
 
 | Your Laravel version | What to use |
 | --- | --- |
-| **11 and above** | This package |
-| **10 and below** | [hyn/multi-tenant](https://github.com/tenancy/multi-tenant) |
+| **11** | `dazza-dev/hyn-multi-tenant` — this package |
+| **9 and 10** | The `0.x` line of this repository, or [hyn/multi-tenant](https://github.com/tenancy/multi-tenant) |
 
-> **Laravel 11 support is in progress and not released yet.** The current code
-> targets Laravel 9 and 10, like the package it continues.
+The `0.x` line is 5.9 with the isolation and provisioning fixes and nothing
+else. It is installed by tag, from this repository:
+
+```json
+{
+  "repositories": [
+    { "type": "vcs", "url": "https://github.com/dazza-dev/hyn-multi-tenant" }
+  ],
+  "require": { "hyn/multi-tenant": "v0.10.4" }
+}
+```
 
 ## About this repository
 
@@ -46,19 +55,22 @@ Tenant separation modes:
 
 ## Requirements
 
-- Laravel 9 or 10 (Laravel 11 in progress)
-- PHP 8.0+
+- Laravel 11
+- PHP 8.2 or newer
 - MySQL, MariaDB or PostgreSQL
 
 ## Installation
 
 ```bash
-composer require hyn/multi-tenant
+composer require dazza-dev/hyn-multi-tenant
 ```
 
+Coming from `hyn/multi-tenant`, read [UPGRADE.md](UPGRADE.md) first. The
+namespace does not change.
+
 The service providers are registered through package auto discovery. To opt out
-and register them yourself, add `hyn/multi-tenant` to `extra.laravel.dont-discover`
-and register:
+and register them yourself, add `dazza-dev/hyn-multi-tenant` to
+`extra.laravel.dont-discover` and register:
 
 ```php
 Hyn\Tenancy\Providers\TenancyProvider::class,
@@ -80,6 +92,8 @@ used unless you override the system connection name.
 
 The [original documentation](https://tenancy.dev) applies to everything not
 listed as changed in [UPGRADE.md](UPGRADE.md).
+
+Contributing, and what the test suite needs: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Testing
 
@@ -104,7 +118,8 @@ docker compose run --rm \
     php vendor/bin/phpunit
 ```
 
-Build against another PHP version with `PHP_VERSION=8.2 docker compose build php`.
+Build against another PHP version with `PHP_VERSION=8.4 docker compose build php`.
+The suite runs on 8.2, 8.3 and 8.4.
 
 > Running the suite drops tenant and system databases. Never point it at
 > anything you care about.
