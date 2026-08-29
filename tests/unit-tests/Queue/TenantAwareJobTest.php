@@ -112,9 +112,16 @@ class TenantAwareJobTest extends Test
         });
     }
 
-    /** @test */
+    /**
+     * An inline job keeps whatever tenant its caller had. With none, it must
+     * acquire none.
+     *
+     * @test
+     */
     public function dispatch_sync_without_identified()
     {
+        resolve(Environment::class)->forgetTenant();
+
         $job = new TestJob();
         dispatch_sync($job);
 
