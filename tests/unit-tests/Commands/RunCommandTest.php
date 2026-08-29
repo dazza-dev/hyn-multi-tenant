@@ -16,10 +16,11 @@ namespace Hyn\Tenancy\Tests\Commands;
 
 use Illuminate\Contracts\Console\Kernel;
 use Hyn\Tenancy\Environment;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
-class RunCommandTest extends Test
+class RunCommandTest extends TestCase
 {
     protected function beforeSetUp(Application $app)
     {
@@ -35,9 +36,7 @@ class RunCommandTest extends Test
         });
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_proxy_artisan_commands()
     {
         $this->setUpWebsites(true);
@@ -49,9 +48,7 @@ class RunCommandTest extends Test
         $this->assertEquals(0, $code);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function proxies_exceptions()
     {
         $this->expectException(\Exception::class);
@@ -63,9 +60,7 @@ class RunCommandTest extends Test
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function takes_options_and_arguments()
     {
         $this->setUpWebsites(true);
@@ -85,9 +80,8 @@ class RunCommandTest extends Test
     /**
      * The loop switches tenant on every website and the last one outlives the
      * command, which matters whenever it is called from a request or a job.
-     *
-     * @test
      */
+    #[Test]
     public function running_across_tenants_leaves_no_tenant_active()
     {
         $this->setUpWebsites(true);
@@ -101,9 +95,7 @@ class RunCommandTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_failing_command_leaves_no_tenant_active_either()
     {
         $this->setUpWebsites(true);

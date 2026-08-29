@@ -16,12 +16,13 @@ namespace Hyn\Tenancy\Tests\Webserver\Vhost;
 
 use Hyn\Tenancy\Generators\Webserver\Vhost\ApacheGenerator;
 use Hyn\Tenancy\Listeners\Servant;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Website\Directory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
-class ApacheGeneratorTest extends Test
+class ApacheGeneratorTest extends TestCase
 {
     /**
      * @var ApacheGenerator
@@ -46,9 +47,7 @@ class ApacheGeneratorTest extends Test
         $this->filesystem = $app->make(Servant::class)->serviceFilesystem('apache2', config('webserver.apache2', []));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function generates_vhost_configuration()
     {
         $this->setUpHostnames();
@@ -59,9 +58,7 @@ class ApacheGeneratorTest extends Test
         $this->assertTrue($this->filesystem->exists($path));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function generates_vhost_media_alias()
     {
         $this->setUpHostnames();

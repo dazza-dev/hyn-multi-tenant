@@ -16,8 +16,9 @@ namespace Hyn\Tenancy\Tests\Generators;
 
 use Hyn\Tenancy\Contracts\Database\PasswordGenerator;
 use Hyn\Tenancy\Models\Website;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Support\Carbon;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Frozen-value tests for the tenant database password generator.
@@ -31,7 +32,7 @@ use Illuminate\Support\Carbon;
  *
  * All inputs are synthetic. No production key or tenant data belongs here.
  */
-class PasswordGeneratorTest extends Test
+class PasswordGeneratorTest extends TestCase
 {
     /**
      * A fixed key, unrelated to any real application key.
@@ -42,9 +43,7 @@ class PasswordGeneratorTest extends Test
     private const WEBSITE_UUID = '3c0f0a1e2b4d5e6f7a8b9c0d1e2f3a4b';
     private const WEBSITE_CREATED_AT = '2023-05-14 09:31:07';
 
-    /**
-     * @test
-     */
+    #[Test]
     public function keyed_algorithm_is_frozen()
     {
         config(['tenancy.key' => self::KEY]);
@@ -57,9 +56,7 @@ class PasswordGeneratorTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function legacy_algorithm_is_frozen()
     {
         // With no tenancy.key configured the generator falls back to hashing
@@ -75,9 +72,7 @@ class PasswordGeneratorTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function generation_is_deterministic()
     {
         config(['tenancy.key' => self::KEY]);
@@ -92,9 +87,7 @@ class PasswordGeneratorTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function created_at_is_part_of_the_hash()
     {
         // Documents a sharp edge rather than endorsing it: the timestamp is an
@@ -116,9 +109,7 @@ class PasswordGeneratorTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function every_input_changes_the_hash()
     {
         config(['tenancy.key' => self::KEY]);

@@ -17,8 +17,9 @@ namespace Hyn\Tenancy\Tests\Contract;
 use Hyn\Tenancy\Contracts\CurrentHostname;
 use Hyn\Tenancy\Environment;
 use Hyn\Tenancy\Events;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * The order of the events fired while a tenant is identified, and what they
@@ -28,7 +29,7 @@ use Illuminate\Contracts\Foundation\Application;
  * ConfigurationLoading is the documented place to do it — so both the order
  * and the payload are contract, not implementation detail.
  */
-class IdentificationEventsTest extends Test
+class IdentificationEventsTest extends TestCase
 {
     /** @var Environment */
     protected $environment;
@@ -36,9 +37,7 @@ class IdentificationEventsTest extends Test
     /** @var array */
     protected $recorded = [];
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_configuration_is_built_before_the_connection_is_set()
     {
         $this->record();
@@ -56,9 +55,8 @@ class IdentificationEventsTest extends Test
      * ConfigurationLoading hands the array over by reference, which is how an
      * application supplies its own credentials — the whole point of the bypass
      * division mode.
-     *
-     * @test
      */
+    #[Test]
     public function a_listener_can_shape_the_configuration_before_the_connection_opens()
     {
         $this->app->make('events')->listen(
@@ -77,9 +75,7 @@ class IdentificationEventsTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function identifying_a_hostname_connects_its_tenant()
     {
         $this->record();
@@ -98,9 +94,7 @@ class IdentificationEventsTest extends Test
         $this->assertTrue($this->website->is($this->environment->tenant()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_loaded_configuration_carries_the_tenant_and_its_uuid()
     {
         $loaded = null;
@@ -124,9 +118,7 @@ class IdentificationEventsTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function releasing_the_tenant_announces_it()
     {
         $this->environment->tenant($this->website);

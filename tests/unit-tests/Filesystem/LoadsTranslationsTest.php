@@ -14,11 +14,12 @@
 
 namespace Hyn\Tenancy\Tests\Filesystem;
 
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Website\Directory;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
-class LoadsTranslationsTest extends Test
+class LoadsTranslationsTest extends TestCase
 {
     /**
      * @var Directory
@@ -40,9 +41,7 @@ class LoadsTranslationsTest extends Test
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function reads_additional_translations()
     {
         // Directory should now exists, let's write the config folder.
@@ -67,9 +66,7 @@ EOM
         $this->assertEquals('bar', trans('test.foo', [], 'ch'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function overrides_global_translations()
     {
         $this->assertTrue(config('tenancy.folders.trans.override-global'));
@@ -79,9 +76,7 @@ EOM
         $this->assertEquals('bar', trans('passwords.password', [], 'en'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function creates_namespace_if_not_global_override()
     {
         config(['tenancy.folders.trans.override-global' => false]);

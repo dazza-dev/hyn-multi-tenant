@@ -55,7 +55,7 @@
             "Hyn\\Tenancy\\Tests\\Traits\\": "tests/traits/"
         },
         "classmap": [
-            "tests/Test.php"
+            "tests/TestCase.php"
         ]
     },
     "extra": {

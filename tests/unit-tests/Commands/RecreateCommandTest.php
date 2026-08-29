@@ -16,6 +16,7 @@ namespace Hyn\Tenancy\Tests\Commands;
 
 use Hyn\Tenancy\Traits\DispatchesEvents;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
 class RecreateCommandTest extends DatabaseCommandTestCase
 {
@@ -28,7 +29,7 @@ class RecreateCommandTest extends DatabaseCommandTestCase
         parent::duringSetUp($app);
     }
 
-    /** @test */
+    #[Test]
     public function can_recreate_deleted_tenant_database()
     {
         config([

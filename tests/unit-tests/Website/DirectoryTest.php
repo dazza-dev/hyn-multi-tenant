@@ -14,14 +14,15 @@
 
 namespace Hyn\Tenancy\Tests\Website;
 
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Website\Directory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem as LocalSystem;
 use Mockery;
+use PHPUnit\Framework\Attributes\Test;
 
-class DirectoryTest extends Test
+class DirectoryTest extends TestCase
 {
     /**
      * @var Directory
@@ -33,9 +34,7 @@ class DirectoryTest extends Test
         $this->directory = $app->make(Directory::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_switch_website()
     {
         $this->setUpWebsites(true);
@@ -50,9 +49,8 @@ class DirectoryTest extends Test
     /**
      * The Filesystem contract declares path($path); typing it here is a fatal
      * error.
-     *
-     * @test
      */
+    #[Test]
     public function path_prefixes_with_the_tenant_and_takes_no_argument_types()
     {
         $this->setUpWebsites(true);
@@ -67,9 +65,7 @@ class DirectoryTest extends Test
         $this->assertSame("$uuid/uploads", $this->directory->path("$uuid/uploads"));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function put_file_lands_inside_the_tenants_directory()
     {
         $this->setUpWebsites(true);
@@ -86,9 +82,7 @@ class DirectoryTest extends Test
         $this->assertSame("$uuid/uploads/generated.txt", $directory->putFile('uploads', 'the-file'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function put_file_as_lands_inside_the_tenants_directory()
     {
         $this->setUpWebsites(true);

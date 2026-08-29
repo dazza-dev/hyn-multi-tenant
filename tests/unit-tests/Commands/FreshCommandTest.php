@@ -19,12 +19,11 @@ use Hyn\Tenancy\Models\Website;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Schema\Blueprint;
 use Hyn\Tenancy\Tests\Seeds\SampleSeeder;
+use PHPUnit\Framework\Attributes\Test;
 
 class FreshCommandTest extends DatabaseCommandTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function is_ioc_bound()
     {
         $this->assertInstanceOf(
@@ -36,9 +35,8 @@ class FreshCommandTest extends DatabaseCommandTestCase
     /**
      * migrate:fresh destroys every tenant database it reaches, so an
      * environment that prohibits it has to be obeyed.
-     *
-     * @test
      */
+    #[Test]
     public function a_prohibited_environment_stops_the_command()
     {
         $this->migrateAndTest('migrate');
@@ -66,9 +64,7 @@ class FreshCommandTest extends DatabaseCommandTestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_seeder_option_defaults_to_the_configured_tenant_seeder()
     {
         config(['tenancy.db.tenant-seed-class' => SampleSeeder::class]);
@@ -84,9 +80,7 @@ class FreshCommandTest extends DatabaseCommandTestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function runs_fresh_on_tenants()
     {
         $this->migrateAndTest('migrate:fresh', function (Website $website) {
@@ -98,9 +92,7 @@ class FreshCommandTest extends DatabaseCommandTestCase
         });
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function runs_fresh_with_seeding_on_tenants()
     {
         $this->migrateAndTest('migrate:fresh', function (Website $website) {
@@ -115,9 +107,7 @@ class FreshCommandTest extends DatabaseCommandTestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function purges_connection_after_running_fresh_on_multiple_tenants()
     {
         $website = new Website();
@@ -133,9 +123,7 @@ class FreshCommandTest extends DatabaseCommandTestCase
         $connection->shouldHaveReceived('purge')->twice();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function does_not_purge_connection_after_running_fresh_on_one_tenant()
     {
         $connection = $this->swapConnectionWithSpy();
@@ -149,9 +137,8 @@ class FreshCommandTest extends DatabaseCommandTestCase
     /**
      * In the prefix division mode every tenant and the system tables share one
      * database, so a wipe aimed at the connection empties all of them.
-     *
-     * @test
      */
+    #[Test]
     public function running_fresh_leaves_the_system_and_the_other_tenants_alone()
     {
         $other = new Website();

@@ -31,7 +31,7 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
  * Laravel package uses, it absorbs the skeleton changes each framework release
  * brings, and it is the only way to reach a booted HTTP kernel from a test.
  */
-class Test extends BaseTestCase
+class TestCase extends BaseTestCase
 {
     use InteractsWithBuilds;
     use InteractsWithMigrations;

@@ -15,11 +15,12 @@
 namespace Hyn\Tenancy\Tests\Controllers;
 
 use Hyn\Tenancy\Controllers\MediaController;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Website\Directory;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
-class MediaControllerTest extends Test
+class MediaControllerTest extends TestCase
 {
     /**
      * @var Directory
@@ -35,9 +36,7 @@ class MediaControllerTest extends Test
         $app['router']->get('/media/{path}', MediaController::class)->where('path', '.+');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function request_file_via_controller()
     {
         $this->directory->setWebsite($this->website);

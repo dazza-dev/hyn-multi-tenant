@@ -16,12 +16,11 @@ namespace Hyn\Tenancy\Tests\Commands;
 
 use Hyn\Tenancy\Database\Console\Migrations\RollbackCommand;
 use Hyn\Tenancy\Models\Website;
+use PHPUnit\Framework\Attributes\Test;
 
 class RollbackCommandTest extends DatabaseCommandTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function is_ioc_bound()
     {
         $this->assertInstanceOf(
@@ -30,9 +29,7 @@ class RollbackCommandTest extends DatabaseCommandTestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function runs_rollback_on_tenants()
     {
         $this->migrateAndTest('migrate');

@@ -16,8 +16,9 @@ namespace Hyn\Tenancy\Tests\Contract;
 
 use Hyn\Tenancy\Database\Connection;
 use Hyn\Tenancy\Models\Website;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Throwable;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * What creating and deleting a website does to the storage behind it.
@@ -25,11 +26,9 @@ use Throwable;
  * Every other test leans on provisioning working; none of them notices when
  * teardown quietly stops removing what it made.
  */
-class ProvisioningContractTest extends Test
+class ProvisioningContractTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function creating_a_tenant_provisions_storage_it_can_reach()
     {
         $website = new Website();
@@ -42,9 +41,7 @@ class ProvisioningContractTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function deleting_a_tenant_takes_its_database_with_it()
     {
         $this->skipUnlessTenantsOwnADatabase();

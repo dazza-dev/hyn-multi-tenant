@@ -16,18 +16,17 @@ namespace Hyn\Tenancy\Tests\Webserver;
 
 use Hyn\Tenancy\Providers\TenancyProvider;
 use Hyn\Tenancy\Providers\WebserverProvider;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
-class WebserverDisabledTest extends Test
+class WebserverDisabledTest extends TestCase
 {
     protected $loadProviders = [
         TenancyProvider::class
     ];
 
-    /**
-     * @test
-     */
+    #[Test]
     public function webserver_provider_is_disabled()
     {
         $this->assertFalse(Arr::get($this->app->getLoadedProviders(), WebserverProvider::class, false));

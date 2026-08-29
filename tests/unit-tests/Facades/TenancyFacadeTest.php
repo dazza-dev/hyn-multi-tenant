@@ -14,11 +14,12 @@
 
 namespace Hyn\Tenancy\Tests\Facades;
 
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Contracts\Foundation\Application;
 use Hyn\Tenancy\Facades\TenancyFacade as Tenancy;
+use PHPUnit\Framework\Attributes\Test;
 
-class TenancyFacadeTest extends Test
+class TenancyFacadeTest extends TestCase
 {
     protected function duringSetUp(Application $app)
     {
@@ -27,17 +28,13 @@ class TenancyFacadeTest extends Test
         config(['tenancy.hostname.default' => $this->hostname->fqdn]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function installed()
     {
         $this->assertTrue(Tenancy::installed());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function website()
     {
         Tenancy::identifyHostname();
@@ -51,9 +48,7 @@ class TenancyFacadeTest extends Test
         $this->assertNotEquals($this->website->uuid, Tenancy::tenant()->uuid);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hostname()
     {
         $this->assertEquals($this->hostname->fqdn, Tenancy::hostname()->fqdn);

@@ -14,13 +14,14 @@
 
 namespace Hyn\Tenancy\Tests\Filesystem;
 
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Environment;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\FilesystemManager;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Test;
 
-class ActivatesDiskTest extends Test
+class ActivatesDiskTest extends TestCase
 {
     /**
      * @var FilesystemManager
@@ -34,9 +35,7 @@ class ActivatesDiskTest extends Test
         $this->files = $app->make('filesystem');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sets_the_disk_during_switch()
     {
         $this->activateTenant();
@@ -53,9 +52,8 @@ class ActivatesDiskTest extends Test
 
     /**
      * The shared root is not the isolation boundary: the tenant's uuid is.
-     *
-     * @test
      */
+    #[Test]
     public function the_disk_is_rooted_in_the_active_tenants_own_directory()
     {
         $this->activateTenant();
@@ -67,9 +65,7 @@ class ActivatesDiskTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function switching_tenant_repoints_the_disk()
     {
         $this->activateTenant();
@@ -94,9 +90,8 @@ class ActivatesDiskTest extends Test
     /**
      * The filesystem counterpart of releasing the connection: an idle worker
      * must not still be pointed at the last customer's directory.
-     *
-     * @test
      */
+    #[Test]
     public function releasing_the_tenant_leaves_no_disk_pointed_at_it()
     {
         $this->activateTenant();

@@ -25,12 +25,12 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\QueryException;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 
-class InstallationTest extends Test
+class InstallationTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function service_providers_registered()
     {
         foreach ([
@@ -51,26 +51,20 @@ class InstallationTest extends Test
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function configurations_are_loaded()
     {
         $this->assertFalse(config('tenancy.website.disable-random-id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function publishes_vendor_files()
     {
         $this->assertFileExists(config_path('tenancy.php'));
         $this->assertFileExists(database_path('migrations/2017_01_01_000003_tenancy_websites.php'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function migration_succeeded()
     {
         $works = true;
@@ -84,10 +78,8 @@ class InstallationTest extends Test
         $this->assertTrue($works, 'Database not migrated');
     }
 
-    /**
-     * @test
-     * @depends migration_succeeded
-     */
+    #[Test]
+    #[Depends('migration_succeeded')]
     public function saves_default_hostname()
     {
         $this->setUpHostnames();
@@ -97,10 +89,8 @@ class InstallationTest extends Test
         $this->assertTrue($this->hostname->exists);
     }
 
-    /**
-     * @test
-     * @depends saves_default_hostname
-     */
+    #[Test]
+    #[Depends('saves_default_hostname')]
     public function hostname_identification_returns_default()
     {
         $this->setUpHostnames(true);
@@ -114,11 +104,11 @@ class InstallationTest extends Test
     }
 
     /**
-     * @test
-     * @depends saves_default_hostname
      * @covers \Hyn\Tenancy\Contracts\Repositories\HostnameRepository::getDefault
      * @covers \Hyn\Tenancy\Repositories\HostnameRepository::getDefault
      */
+    #[Test]
+    #[Depends('saves_default_hostname')]
     public function verify_request()
     {
         $this->setUpHostnames(true);
@@ -131,9 +121,9 @@ class InstallationTest extends Test
     }
 
     /**
-     * @test
      * @covers \Hyn\Tenancy\Generators\Uuid\ShaGenerator
      */
+    #[Test]
     public function verify_uuid_generator()
     {
         $this->setUpWebsites();

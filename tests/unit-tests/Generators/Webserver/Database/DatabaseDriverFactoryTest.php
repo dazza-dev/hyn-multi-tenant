@@ -16,14 +16,13 @@ namespace Hyn\Tenancy\Tests\Generators\Webserver\Database;
 
 use Hyn\Tenancy\Generators\Webserver\Database\DatabaseDriverFactory;
 use Hyn\Tenancy\Generators\Webserver\Database\Drivers\MariaDB;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Tests\Extend\DatabaseDriverExtend;
+use PHPUnit\Framework\Attributes\Test;
 
-class DatabaseDriverFactoryTest extends Test
+class DatabaseDriverFactoryTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function creates_mysql_driver_by_default()
     {
         $driver = (new DatabaseDriverFactory())->create();
@@ -31,9 +30,7 @@ class DatabaseDriverFactoryTest extends Test
         $this->assertInstanceOf(MariaDB::class, $driver);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function throws_an_exception_if_driver_doesnt_exist()
     {
         $this->expectException(\Hyn\Tenancy\Exceptions\GeneratorFailedException::class);
@@ -41,9 +38,7 @@ class DatabaseDriverFactoryTest extends Test
         (new DatabaseDriverFactory())->create('non-existing-driver');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function throws_an_exception_if_driver_doesnt_implement_contract()
     {
         $this->expectException(\TypeError::class);
@@ -53,9 +48,7 @@ class DatabaseDriverFactoryTest extends Test
         (new DatabaseDriverFactory())->create('random');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function allows_to_create_custom_driver()
     {
         app('tenancy.db.drivers')->put('custom', DatabaseDriverExtend::class);

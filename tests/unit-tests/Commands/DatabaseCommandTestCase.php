@@ -15,11 +15,11 @@
 namespace Hyn\Tenancy\Tests\Commands;
 
 use Hyn\Tenancy\Database\Connection;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Tests\Traits\InteractsWithMigrations;
 use Illuminate\Contracts\Foundation\Application;
 
-abstract class DatabaseCommandTestCase extends Test
+abstract class DatabaseCommandTestCase extends TestCase
 {
     use InteractsWithMigrations;
 

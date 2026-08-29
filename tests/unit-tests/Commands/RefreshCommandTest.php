@@ -17,12 +17,11 @@ namespace Hyn\Tenancy\Tests\Commands;
 use Hyn\Tenancy\Database\Console\Migrations\RefreshCommand;
 use Hyn\Tenancy\Models\Website;
 use Hyn\Tenancy\Tests\Seeds\SampleSeeder;
+use PHPUnit\Framework\Attributes\Test;
 
 class RefreshCommandTest extends DatabaseCommandTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function is_ioc_bound()
     {
         $this->assertInstanceOf(
@@ -31,9 +30,7 @@ class RefreshCommandTest extends DatabaseCommandTestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function runs_refresh_on_tenants()
     {
         $this->migrateAndTest('migrate');
@@ -49,9 +46,8 @@ class RefreshCommandTest extends DatabaseCommandTestCase
 
     /**
      * Seeding has to honour the same tenant filter the rest of the command does.
-     *
-     * @test
      */
+    #[Test]
     public function runs_refresh_with_seeding_on_selected_tenant()
     {
         $otherWebsite = $this->getReplicatedWebsite();
@@ -81,9 +77,8 @@ class RefreshCommandTest extends DatabaseCommandTestCase
 
     /**
      * Passing the filter through must not turn "no filter" into "no tenants".
-     *
-     * @test
      */
+    #[Test]
     public function runs_refresh_with_seeding_on_every_tenant_when_none_is_named()
     {
         $otherWebsite = $this->getReplicatedWebsite();

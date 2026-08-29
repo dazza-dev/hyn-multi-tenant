@@ -16,9 +16,10 @@ namespace Hyn\Tenancy\Tests\Isolation;
 
 use Hyn\Tenancy\Database\Connection;
 use Hyn\Tenancy\Tests\Extend\AwareExtend;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Tests\Traits\InteractsWithIsolation;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Whether one tenant's data can ever be reached while another is active.
@@ -26,7 +27,7 @@ use Illuminate\Contracts\Foundation\Application;
  * The assertions name the tenant whose data leaked rather than report a
  * mismatched count, since a failure here means one customer reading another's.
  */
-class ConnectionIsolationTest extends Test
+class ConnectionIsolationTest extends TestCase
 {
     use InteractsWithIsolation;
 
@@ -36,9 +37,7 @@ class ConnectionIsolationTest extends Test
         $this->setUpIsolation();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function switching_between_tenants_shows_only_that_tenant()
     {
         $this->asTenant($this->tenantA, fn () => $this->assertOnlySees(self::MARKER_A, 'first switch to A'));
@@ -46,9 +45,7 @@ class ConnectionIsolationTest extends Test
         $this->asTenant($this->tenantA, fn () => $this->assertOnlySees(self::MARKER_A, 'switch back to A'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function switching_without_an_explicit_purge_still_isolates()
     {
         // Connection::set() is expected to purge and reconnect on its own. If
@@ -62,9 +59,7 @@ class ConnectionIsolationTest extends Test
         $this->connection->purge();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function releasing_the_tenant_does_not_leave_the_previous_one_reachable()
     {
         // The vector this exists for: after the active tenant is released, a
@@ -94,9 +89,7 @@ class ConnectionIsolationTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function setting_a_null_tenant_does_not_leave_the_previous_configuration_armed()
     {
         // ConnectsTenants calls Connection::set() with whatever a Websites
@@ -119,9 +112,7 @@ class ConnectionIsolationTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function reading_after_a_null_tenant_never_returns_the_previous_tenants_rows()
     {
         // The same defect stated as consequence rather than as state: what a
@@ -147,9 +138,7 @@ class ConnectionIsolationTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_tenant_aware_model_falls_back_to_system_rather_than_the_last_tenant()
     {
         $this->connection->set($this->tenantA);
@@ -165,9 +154,7 @@ class ConnectionIsolationTest extends Test
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function a_system_model_ignores_whichever_tenant_is_active()
     {
         $websites = $this->connection->systemName();
@@ -181,9 +168,7 @@ class ConnectionIsolationTest extends Test
         });
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function writes_land_in_the_active_tenant_only()
     {
         $this->asTenant($this->tenantA, function () {
@@ -203,9 +188,7 @@ class ConnectionIsolationTest extends Test
         });
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function each_tenant_gets_its_own_slice_of_the_server()
     {
         $a = $this->connection->generateConfigurationArray($this->tenantA);
@@ -236,9 +219,7 @@ class ConnectionIsolationTest extends Test
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function one_tenant_cannot_read_another_tenants_data_even_with_its_own_credentials()
     {
         // The last line of defence: with a connection aimed straight at

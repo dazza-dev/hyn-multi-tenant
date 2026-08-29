@@ -14,11 +14,12 @@
 
 namespace Hyn\Tenancy\Tests\Filesystem;
 
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Hyn\Tenancy\Website\Directory;
 use Illuminate\Contracts\Foundation\Application;
+use PHPUnit\Framework\Attributes\Test;
 
-class LoadsConfigsTest extends Test
+class LoadsConfigsTest extends TestCase
 {
     /**
      * @var Directory
@@ -34,9 +35,7 @@ class LoadsConfigsTest extends Test
         $this->directory->setWebsite($this->website);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function reads_additional_config()
     {
         $this->assertNull(config('test.foo'));
@@ -61,9 +60,7 @@ EOM
         $this->assertEquals('bar', config('test.foo'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function does_not_make_config_array()
     {
         $this->assertNotEquals('bar', config('app.name'));
@@ -88,9 +85,7 @@ EOM
         $this->assertEquals('bar', config('app.name'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blocks_blacklisted_configs()
     {
         // Directory should now exists, let's write the config folder.

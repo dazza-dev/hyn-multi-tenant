@@ -19,7 +19,7 @@ use Hyn\Tenancy\Contracts\CurrentHostname;
 use Hyn\Tenancy\Contracts\Hostname;
 use Hyn\Tenancy\Environment;
 use Hyn\Tenancy\Middleware\HostnameActions;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,14 +27,13 @@ use Illuminate\Routing\Redirector;
 use Illuminate\Support\Carbon;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use PHPUnit\Framework\Attributes\Test;
 
-class HostnameActionsTest extends Test
+class HostnameActionsTest extends TestCase
 {
     public const RESPONSE = 'ok';
 
-    /**
-     * @test
-     */
+    #[Test]
     public function under_maintenance()
     {
         $this->hostname->under_maintenance_since = Carbon::now();
@@ -59,9 +58,7 @@ class HostnameActionsTest extends Test
         $this->assertEquals(static::RESPONSE, $this->middleware($this->hostname));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function middleware_allows_empty_hostname()
     {
         $middleware = new HostnameActions(app()->make(Redirector::class));
@@ -69,9 +66,7 @@ class HostnameActionsTest extends Test
         $this->assertNotNull($middleware);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function auto_identification_false()
     {
         config(['tenancy.hostname.auto-identification' => false]);
@@ -90,9 +85,7 @@ class HostnameActionsTest extends Test
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function redirects_when_the_hostname_points_elsewhere()
     {
         $this->hostname->redirect_to = 'https://elsewhere.testing';
@@ -104,9 +97,7 @@ class HostnameActionsTest extends Test
         $this->assertSame('https://elsewhere.testing', $response->getTargetUrl());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function forces_https_when_the_hostname_demands_it()
     {
         $this->hostname->force_https = true;
@@ -121,9 +112,8 @@ class HostnameActionsTest extends Test
     /**
      * Maintenance takes precedence: a hostname both under maintenance and
      * redirecting must not send visitors on to a site that is down.
-     *
-     * @test
      */
+    #[Test]
     public function maintenance_wins_over_a_redirect()
     {
         $this->hostname->under_maintenance_since = Carbon::now();

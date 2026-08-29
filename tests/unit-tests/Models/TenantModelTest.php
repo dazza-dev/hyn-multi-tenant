@@ -15,13 +15,12 @@
 namespace Hyn\Tenancy\Tests\Models;
 
 use Hyn\Tenancy\Tests\Extend\TenantExtend;
-use Hyn\Tenancy\Tests\Test;
+use Hyn\Tenancy\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
-class TenantModelTest extends Test
+class TenantModelTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function uses_correct_connection()
     {
         $model = new TenantExtend();
