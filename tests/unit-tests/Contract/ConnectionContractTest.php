@@ -17,9 +17,12 @@ namespace Hyn\Tenancy\Tests\Contract;
 use Hyn\Tenancy\Contracts\Database\PasswordGenerator;
 use Hyn\Tenancy\Contracts\Website;
 use Hyn\Tenancy\Database\Connection;
+use Hyn\Tenancy\Events\Database\ConnectionSet;
 use Hyn\Tenancy\Exceptions\ConnectionException;
+use Hyn\Tenancy\Models\Website as WebsiteModel;
 use Hyn\Tenancy\Tests\TestCase;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -162,6 +165,39 @@ class ConnectionContractTest extends TestCase
      * Build the tenant configuration under a given division mode, leaving the
      * mode the suite runs under untouched.
      */
+    /**
+     * The credentials are derived from the website, so the same uuid can come
+     * back needing a different password. Keeping the open connection then
+     * means reconnecting with the old one.
+     */
+    #[Test]
+    public function a_tenant_whose_credentials_changed_purges_the_connection()
+    {
+        $this->setUpWebsites(true);
+
+        $this->connection->set($this->website);
+
+        $purged = [];
+
+        Event::listen(ConnectionSet::class, function (ConnectionSet $event) use (&$purged) {
+            $purged[] = $event->purged;
+        });
+
+        $this->connection->set($this->website);
+
+        $this->assertSame([false], $purged, 'Nothing changed, so nothing had to be purged.');
+
+        $sameTenantNewCredentials = WebsiteModel::unguarded(function () {
+            return new WebsiteModel(['uuid' => $this->website->uuid]);
+        });
+
+        $sameTenantNewCredentials->id = $this->website->id + 1000;
+
+        $this->connection->set($sameTenantNewCredentials);
+
+        $this->assertSame([false, true], $purged);
+    }
+
     protected function configurationFor(string $mode, ?Website $website = null): array
     {
         $previous = config('tenancy.db.tenant-division-mode');
