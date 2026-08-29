@@ -38,11 +38,6 @@ class Connection
     public const DEFAULT_SYSTEM_NAME = 'system';
     public const DEFAULT_TENANT_NAME = 'tenant';
 
-    /**
-    * @deprecated
-    */
-    public const DEFAULT_MIGRATION_NAME = 'tenant-migration';
-
     public const DIVISION_MODE_SEPARATE_DATABASE = 'database';
     public const DIVISION_MODE_SEPARATE_PREFIX = 'prefix';
 
@@ -167,10 +162,9 @@ class Connection
             $generated
         );
 
-        // The uuid is not enough to tell one configuration from another: the
-        // credentials are derived from the website, so the same tenant can
-        // come back needing a different password. Anything already open would
-        // keep reconnecting with the old one.
+        // The uuid does not tell one configuration from another: credentials
+        // are derived per website, so the same tenant can come back needing a
+        // different password.
         if ($existing == $generated) {
             $this->emitEvent(
                 new Events\Database\ConnectionSet($website, $connection, false)

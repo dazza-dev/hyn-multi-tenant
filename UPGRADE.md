@@ -67,6 +67,10 @@ Across a loop of tenants that hides which of them are left unmigrated.
 `isProhibited()`, which is how Laravel lets you block them in production. The
 package used to replace the framework's `handle()` and lose the check with it.
 
+### Connection::DEFAULT_MIGRATION_NAME is gone
+
+It was marked deprecated and referenced nowhere, here or in the tests.
+
 ### Doctrine DBAL is no longer required
 
 It was declared as a runtime dependency and used nowhere. If your own code

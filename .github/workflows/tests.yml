@@ -107,15 +107,14 @@ jobs:
           restore-keys: composer-${{ matrix.php }}-L${{ matrix.laravel }}-
 
       # Testbench provides the application skeleton, and its major version
-      # tracks the framework's: Testbench 8 is Laravel 10. Pinning the
-      # framework alone would let composer pick a Testbench that pulls a
-      # different framework back in.
+      # tracks the framework's. Pinning the framework alone would let composer
+      # pick a Testbench that pulls a different framework back in.
       - name: Pin Laravel version
         run: |
           composer require --no-update --no-interaction \
             "laravel/framework:^${{ matrix.laravel }}.0"
           composer require --no-update --no-interaction --dev \
-            "orchestra/testbench:^${{ matrix.laravel == '10' && '8' || '9' }}.0"
+            "orchestra/testbench:^9.0"
 
       - name: Install dependencies
         env:

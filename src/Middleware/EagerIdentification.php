@@ -24,10 +24,9 @@ class EagerIdentification
     {
         if (config('tenancy.hostname.auto-identification') &&
             config('tenancy.hostname.early-identification')) {
-            // Identification reads the request, so it belongs here rather than
-            // in the environment's constructor. Asking again on every request
-            // is what keeps a long lived process from serving the tenant it
-            // identified for the first one.
+            // Identification reads the request, and asking again per request
+            // is what keeps a long lived process from serving every one of
+            // them the tenant it identified for the first.
             app(Environment::class)->identifyHostname();
         }
 

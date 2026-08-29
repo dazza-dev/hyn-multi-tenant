@@ -33,7 +33,6 @@ class UpdateAppUrlTest extends TestCase
         $url = config('app.url');
         $this->assertEquals($url, url()->to('/'));
 
-        // seg fault here for me, let's see what CircleCi does.
         $this->activateTenant();
 
         $this->assertEquals('http://'.$this->hostname->fqdn, config('app.url'));
