@@ -33,13 +33,13 @@
     "require": {
         "php": "^8.2",
         "ramsey/uuid": "^4.0",
-        "laravel/framework": "^12.0"
+        "laravel/framework": "^12.0|^13.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "laravel/pint": "^1.30",
         "mockery/mockery": "^1.6",
-        "orchestra/testbench": "^10.0",
+        "orchestra/testbench": "^10.0|^11.0",
         "phpunit/phpunit": "^10.5|^11.0|^12.0"
     },
     "autoload": {

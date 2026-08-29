@@ -31,6 +31,8 @@ class FreshCommand extends BaseCommand
         parent::__construct($migrator);
 
         $this->bootTenancy();
+
+        $this->defineSeederDefault('seeder');
     }
 
     /**
@@ -142,17 +144,4 @@ class FreshCommand extends BaseCommand
      *
      * @return array
      */
-    protected function getOptions()
-    {
-        $options = parent::getOptions();
-        foreach ($options as &$option) {
-            if ($option[0] === 'seeder') {
-                $option[4] = config('tenancy.db.tenant-seed-class', null);
-            }
-        }
-
-        return array_merge($options, [
-            $this->addWebsiteOption()
-        ]);
-    }
 }
