@@ -36,7 +36,8 @@ trait MutatesMigrationCommands
     protected function bootTenancy(): void
     {
         $this->setName('tenancy:' . $this->getName());
-        $this->specifyParameters();
+
+        $this->defineWebsiteOption();
 
         $this->websites = app(WebsiteRepository::class);
         $this->connection = app(Connection::class);
@@ -101,13 +102,4 @@ trait MutatesMigrationCommands
         throw new InvalidArgumentException("To prevent unwanted migrations from database/migrations, always specify a path.");
     }
 
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return array_merge([$this->addWebsiteOption()], parent::getOptions());
-    }
 }

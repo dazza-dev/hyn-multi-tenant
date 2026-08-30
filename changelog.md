@@ -2,6 +2,14 @@
 
 ## dazza-dev/hyn-multi-tenant
 
+- 2.1.0
+    - Laravel 13, alongside 12. PHP stays at 8.2, so an application on 8.2
+      installs Laravel 12 and one on 8.3 can install either
+    - The website filter and the configured seeder are put on the command
+      definition the framework built, rather than through getOptions(), which
+      Laravel only consults for a command that declares no signature
+- 2.0.0
+    - Laravel 12, dropping 11. The advisory ignore list goes with it
 - 1.0.0
     - Laravel 11, PHP 8.2 and up. Doctrine DBAL is no longer required
     - The hostname is identified per request rather than per application, so
